@@ -97,7 +97,16 @@ namespace TKRain.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("tk.ecitizen.jp/Data")]
+        public string BucketName {
+            get {
+                return ((string)(this["BucketName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("XXXXXXXX")]
         public string AWSAccessKey {
             get {
                 return ((string)(this["AWSAccessKey"]));
@@ -106,19 +115,10 @@ namespace TKRain.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("XXXXXXXXX")]
         public string AWSSecretKey {
             get {
                 return ((string)(this["AWSSecretKey"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("tk.ecitizen.jp/Data")]
-        public string BucketName {
-            get {
-                return ((string)(this["BucketName"]));
             }
         }
     }

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // アセンブリに関する一般情報は以下の属性セットをとおして制御されます。
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
-[assembly: AssemblyTitle("TKGMap")]
+[assembly: AssemblyTitle("TKRain")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TKGMap")]
-[assembly: AssemblyCopyright("Copyright ©  2013")]
+[assembly: AssemblyProduct("TKRain")]
+[assembly: AssemblyCopyright("Copyright ©  2015 Yasuhiro Niji")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 次の GUID は、このプロジェクトが COM に公開される場合の、typelib の ID です
-[assembly: Guid("0c8e0e4c-aed2-46d3-b4bf-60e3331f9d65")]
+[assembly: Guid("4E795B66-C8D9-4F31-9A06-7E62031EC137")]
 
 // アセンブリのバージョン情報は、以下の 4 つの値で構成されています:
 //

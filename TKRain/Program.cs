@@ -16,24 +16,27 @@ namespace TKRain
         {
             string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             Directory.SetCurrentDirectory(path);
-            if (!Directory.Exists("Data"))
-                Directory.CreateDirectory("Data");
             if (!Directory.Exists(Path.Combine("Data", "Rain")))
                 Directory.CreateDirectory(Path.Combine("Data", "Rain"));
-            if (!Directory.Exists(Path.Combine("Data", "Rain")))
+            if (!Directory.Exists(Path.Combine("Data", "River")))
                 Directory.CreateDirectory(Path.Combine("Data", "River"));
-            if (!Directory.Exists(Path.Combine("Data", "Rain")))
+            if (!Directory.Exists(Path.Combine("Data", "Road")))
                 Directory.CreateDirectory(Path.Combine("Data", "Road"));
-            if (!Directory.Exists(Path.Combine("Data", "Rain")))
+            if (!Directory.Exists(Path.Combine("Data", "Dam")))
                 Directory.CreateDirectory(Path.Combine("Data", "Dam"));
             if (!Directory.Exists("Config"))
                 Directory.CreateDirectory("Config");
+
+            Observation.ObservationIni();
+
+            List<Task> ObsTask = new List<Task>();
 
             try {
                 LoggerClass.NLogInfo("処理開始");
                 var rainfall = new Rainfall();
                 int number = rainfall.GetRainfallData();
                 LoggerClass.NLogInfo("雨量処理件数: " + number + "件");
+                ObsTask.Add(Observation.AmazonS3DirctoryUpload("Rain", 0));
             }
             catch(Exception e1)
             {
@@ -68,6 +71,8 @@ namespace TKRain
             {
                 LoggerClass.NLogInfo("ダム情報ルーチンエラー: " + e1.Message);
             }
+
+            Task.WaitAll(ObsTask.ToArray());
             LoggerClass.NLogInfo("処理終了");
         }
     }

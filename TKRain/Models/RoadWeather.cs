@@ -75,10 +75,10 @@ namespace TKRain.Models
                 stationData.lat = station.lat;
                 stationData.lng = station.lng;
             }
-            Observation.SaveToXml(Path.Combine("data", "RoadWeather.xml"), data, 0);
-            File.WriteAllText(Path.Combine("data", "RoadWeather.json"), JsonConvert.SerializeObject(data));
+            Observation.SaveToXml(Path.Combine("Data", "Road", "RoadWeather.xml"), data, 0);
+            File.WriteAllText(Path.Combine("Data", "Road", "RoadWeather.json"), JsonConvert.SerializeObject(data));
 
-            File.WriteAllText(Path.Combine("data", "RoadWeatherObservationTime.text"), observationDateTime.ToString());
+            File.WriteAllText(Path.Combine("Data", "RoadWeatherObservationTime.text"), observationDateTime.ToString());
             return 0;
         }
 

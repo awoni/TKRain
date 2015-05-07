@@ -74,8 +74,8 @@ namespace TKRain.Models
                 stationData.lat = station.lat;
                 stationData.lng = station.lng;
             }
-            Observation.SaveToXml(Path.Combine("data", "RiverLebel.xml"), data, 0);
-            File.WriteAllText(Path.Combine("data", "RiverLebel.json"), JsonConvert.SerializeObject(data));
+            Observation.SaveToXml(Path.Combine("Data", "River", "RiverLebel.xml"), data, 0);
+            File.WriteAllText(Path.Combine("Data", "River", "RiverLebel.json"), JsonConvert.SerializeObject(data));
 
             File.WriteAllText(Path.Combine("data", "RiverLevelObservationTime.text"), observationDateTime.ToString());
             return 0;

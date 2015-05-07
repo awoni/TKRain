@@ -78,8 +78,8 @@ namespace TKRain.Models
                 stationData.lat = station.lat;
                 stationData.lng = station.lng;
             }
-            Observation.SaveToXml(Path.Combine("data", "Rainfall.xml"), data, 0);
-            File.WriteAllText(Path.Combine("data", "Rainfall.json"), JsonConvert.SerializeObject(data));
+            Observation.SaveToXml(Path.Combine("Data", "Rain", "Rainfall.xml"), data, 0);
+            File.WriteAllText(Path.Combine("Data", "Rain", "Rainfall.json"), JsonConvert.SerializeObject(data));
 
 
             HourRainList hourRainList = new HourRainList
@@ -102,7 +102,7 @@ namespace TKRain.Models
                     }
 
                     RainSeries rs;
-                    string path = Path.Combine("data", "rain", oi.ofc.ToString("00000") + "-" + oi.obc.ToString("00000") + ".json");
+                    string path = Path.Combine("Data", "Rain", oi.ofc.ToString("00000") + "-" + oi.obc.ToString("00000") + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);
@@ -232,15 +232,15 @@ namespace TKRain.Models
                     LoggerClass.NLogInfo("雨量累積データ作成エラー 観測所: " + oi.obn +" メッセージ: " + e1.Message);
                 }
             }
-            File.WriteAllText(Path.Combine("data", "RainfallObservationTime.text"), observationDateTime.ToString());
-            File.WriteAllText(Path.Combine("data", "HourRainfall.json"), JsonConvert.SerializeObject(hourRainList));
+            File.WriteAllText(Path.Combine("Data", "RainfallObservationTime.text"), observationDateTime.ToString());
+            File.WriteAllText(Path.Combine("Data", "HourRainfall.json"), JsonConvert.SerializeObject(hourRainList));
             return number;
         }
 
         private bool IsUpdateRequired(out DateTime PrevObservationTime)
         {
             try {
-                PrevObservationTime = DateTime.Parse(File.ReadAllText(Path.Combine("data", "RainfallObservationTime.text")));
+                PrevObservationTime = DateTime.Parse(File.ReadAllText(Path.Combine("Data", "RainfallObservationTime.text")));
                 //10分ごとに更新
                 if ((DateTime.Now - PrevObservationTime).Ticks >= 6000000000L)
                     return true;

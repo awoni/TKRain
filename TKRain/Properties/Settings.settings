@@ -26,14 +26,14 @@
     <Setting Name="OUTPUTDIR" Type="System.String" Scope="Application">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="AWSAccessKey" Type="System.String" Scope="Application">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="AWSSecretKey" Type="System.String" Scope="Application">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="BucketName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">tk.ecitizen.jp/Data</Value>
+    </Setting>
+    <Setting Name="AWSAccessKey" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">XXXXXXXX</Value>
+    </Setting>
+    <Setting Name="AWSSecretKey" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">XXXXXXXXX</Value>
     </Setting>
   </Settings>
 </SettingsFile>

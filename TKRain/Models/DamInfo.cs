@@ -75,8 +75,8 @@ namespace TKRain.Models
                 stationData.lat = station.lat;
                 stationData.lng = station.lng;
             }
-            Observation.SaveToXml(Path.Combine("data", "DamInfo.xml"), data, 0);
-            File.WriteAllText(Path.Combine("data", "DamInfo.json"), JsonConvert.SerializeObject(data));
+            Observation.SaveToXml(Path.Combine("data", "dam", "DamInfo.xml"), data, 0);
+            File.WriteAllText(Path.Combine("data", "dam", "DamInfo.json"), JsonConvert.SerializeObject(data));
 
             File.WriteAllText(Path.Combine("data", "DamObservationTime.text"), observationDateTime.ToString());
             return 0;

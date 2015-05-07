@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net;
 using Newtonsoft.Json;
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon.S3.Transfer;
 
 //徳島県　雨量、水位情報
 //最新の観測データ http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00001.xml
@@ -22,6 +26,16 @@ namespace TKRain.Models
 {
     class Observation
     {
+        private static string AWSAccesskey;
+        private static string AWSSecretKey;
+        private static string BucketName;
+
+        public static void ObservationIni()
+        {
+            AWSAccesskey = Properties.Settings.Default.AWSAccessKey;
+            AWSSecretKey = Properties.Settings.Default.AWSSecretKey;
+            BucketName = Properties.Settings.Default.BucketName;
+        }
         public static T TgGetStream<T>(string url, int ntry)
         {
             try
@@ -77,6 +91,51 @@ namespace TKRain.Models
                         File.Delete(path);
                     LoggerClass.NLogInfo("XMLファイルの保存に失敗しました。ファイル名: " + path);
                 }
+            }
+        }
+
+        //AmazonのS3へのアップロード
+        public async Task AmazonS3Upload(string path, int ntry)
+        {
+            var s3Client = AWSClientFactory.CreateAmazonS3Client(AWSAccesskey, AWSSecretKey, RegionEndpoint.APNortheast1);
+            try
+            {
+                var utility = new TransferUtility(s3Client, new TransferUtilityConfig());
+                await utility.UploadAsync(path, BucketName);
+                /*
+                //S3のパケットポリシーでGetObjectの設定をしておくことで対応
+                //http://stackoverflow.com/questions/7420209/amazon-s3-permission-problem-how-to-set-permissions-for-all-files-at-once
+                s3Client.PutACL(new PutACLRequest
+                {
+                    BucketName = BucketName,
+                    Key = filename,
+                    CannedACL = S3CannedACL.PublicRead
+                });
+                */
+            }
+            catch (Exception e1)
+            {
+                if (ntry < 3)
+                    await AmazonS3Upload(path, ++ntry);
+                else
+                    LoggerClass.NLogError("EC2アップロードエラー: " + e1.Message);
+            }
+        }
+
+        public static async Task AmazonS3DirctoryUpload(string name, int ntry)
+        {
+            var s3Client = AWSClientFactory.CreateAmazonS3Client(AWSAccesskey, AWSSecretKey, RegionEndpoint.APNortheast1);
+            try
+            {
+                var utility = new TransferUtility(s3Client, new TransferUtilityConfig());
+                await utility.UploadDirectoryAsync(Path.Combine("Data", name), BucketName + "/" + name);
+            }
+            catch (Exception e1)
+            {
+                if (ntry < 3)
+                    await AmazonS3DirctoryUpload(name, ++ntry);
+                else
+                    LoggerClass.NLogError("EC2アップロードエラー: " + e1.Message);
             }
         }
     }
