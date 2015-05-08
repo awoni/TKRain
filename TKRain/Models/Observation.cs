@@ -138,6 +138,31 @@ namespace TKRain.Models
                     LoggerClass.NLogError("EC2アップロードエラー: " + e1.Message);
             }
         }
+
+        public static bool IsUpdateRequired(string filename, out DateTime PrevObservationTime)
+        {
+            try
+            {
+                PrevObservationTime = DateTime.Parse(File.ReadAllText(Path.Combine("data", filename)));
+                //10分ごとに更新
+                if ((DateTime.Now - PrevObservationTime).Ticks >= 6000000000L)
+                    return true;
+                return false;
+            }
+            catch
+            {
+                PrevObservationTime = default(DateTime);
+                return true;
+            }
+        }
+
+        public static double? StringToDouble(string s)
+        {
+            double d;
+            if (double.TryParse(s, out d))
+                return d;
+            return null;
+        }
     }
 
 

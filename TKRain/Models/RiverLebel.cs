@@ -17,6 +17,7 @@ namespace TKRain.Models
         private StationInfoList stationInfoList;
         const string RiverLevelUrl = "http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00004.xml";
         const string RiverLevelStationsUrl = "http://www1.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_4.xml";
+        const int SeriesNumber = 300;
 
         public RiverLebel()
         {
@@ -50,11 +51,9 @@ namespace TKRain.Models
             File.WriteAllText(path, JsonConvert.SerializeObject(stationInfoList));
         }
 
-        public int GetRiverLevelData()
+        public int GetRiverLevelData(DateTime prevObservationTime)
         {
-            DateTime prevObservationTim;
-            if (!IsUpdateRequired(out prevObservationTim))
-                return 0;
+            int number = 0; 
 
             RiverDocd data = Observation.TgGetStream<RiverDocd>(RiverLevelUrl, 0);
             if (data == null)
@@ -65,7 +64,7 @@ namespace TKRain.Models
                 DateTime.Parse(observationTime.Substring(0, observationTime.Length - 6)).AddDays(1)
                 : DateTime.Parse(observationTime);
 
-            if (observationDateTime <= prevObservationTim)
+            if (observationDateTime <= prevObservationTime)
                 return 0;
 
             foreach (var stationData in data.oi)
@@ -77,26 +76,178 @@ namespace TKRain.Models
             Observation.SaveToXml(Path.Combine("Data", "River", "RiverLebel.xml"), data, 0);
             File.WriteAllText(Path.Combine("Data", "River", "RiverLebel.json"), JsonConvert.SerializeObject(data));
 
-            File.WriteAllText(Path.Combine("data", "RiverLevelObservationTime.text"), observationDateTime.ToString());
-            return 0;
-        }
+            RiverDataList riverDataList = new RiverDataList
+            {
+                dt = observationDateTime,
+                hr = new List<RiverData>()
+            };
 
-        private bool IsUpdateRequired(out DateTime PrevObservationTime)
-        {
-            try
+            //累積データを作成
+            foreach (var oi in data.oi)
             {
-                PrevObservationTime = DateTime.Parse(File.ReadAllText(Path.Combine("data", "RiverLevelObservationTime.text")));
-                //10分ごとに更新
-                if ((DateTime.Now - PrevObservationTime).Ticks >= 6000000000L)
-                    return true;
-                return false;
+                try
+                {
+                    /// ToDo 24:00 の例外処理が必要
+                    DateTime doidt = observationDateTime;
+                    if (observationTime != oi.odd.wd.d10_10m.ot)
+                    {
+                        LoggerClass.NLogInfo("水位観測時間相違 観測所: " + oi.obn);
+                        doidt = observationTime.EndsWith("24:00") ?
+                            DateTime.Parse(observationTime.Substring(0, observationTime.Length - 6)).AddDays(1)
+                            : DateTime.Parse(observationTime);
+                    }
+
+                    RiverSeries rs;
+                    string path = Path.Combine("Data", "River", oi.ofc + "-" + oi.obc + ".json");
+                    if (File.Exists(path))
+                    {
+                        string json = File.ReadAllText(path);
+                        rs = JsonConvert.DeserializeObject<RiverSeries>(json);
+                        DateTime rsdt = rs.ot[SeriesNumber - 1];
+                        int nt = (int)((doidt - rsdt).Ticks / 6000000000);
+                        for (int n = 0; n < SeriesNumber - nt; n++)
+                        {
+                            rs.ot[n] = rs.ot[n + nt];
+                            rs.d10_val[n] = rs.d10_val[n + nt];
+                            rs.d10_si[n] = rs.d10_si[n + nt];
+                        }
+                        DateTime dt = doidt.AddMinutes(-10 * nt);
+                        for (int n = SeriesNumber - nt; n < SeriesNumber - 1; n++)
+                        {
+                            dt = dt.AddMinutes(10);
+                            rs.ot[n] = dt;
+                            rs.d10_val[n] = null;
+                            rs.d10_si[n] = -1;
+                        }
+                    }
+                    else
+                    {
+                        rs = new RiverSeries
+                        {
+                            ofc = oi.ofc,
+                            obc = oi.obc,
+                            obn = oi.obn,
+                            plaw = Observation.StringToDouble(oi.plaw),
+                            danw = Observation.StringToDouble(oi.danw),
+                            spcw = Observation.StringToDouble(oi.spcw),
+                            cauw = Observation.StringToDouble(oi.cauw),
+                            spfw = Observation.StringToDouble(oi.spfw),
+                            ot = new DateTime[SeriesNumber],
+                            d10_val = new double?[SeriesNumber],
+                            d10_si = new int[SeriesNumber],
+                        };
+                        DateTime dt = doidt.AddMinutes(-10 * SeriesNumber);
+                        for (int n = 0; n < SeriesNumber; n++)
+                        {
+                            dt = dt.AddMinutes(10);
+                            rs.ot[n] = dt;
+                        }
+                        for (int n = 0; n < SeriesNumber; n++)
+                            rs.d10_si[n] = -1;
+                    }
+
+                    rs.ot[SeriesNumber - 1] = doidt;
+                    double dresult;
+                    if (double.TryParse(oi.odd.wd.d10_10m.ov, out dresult))
+                        rs.d10_val[SeriesNumber - 1] = dresult;
+                    else
+                        rs.d10_val[SeriesNumber - 1] = null;
+                    rs.d10_si[SeriesNumber - 1] = oi.odd.wd.d10_10m.osi;
+
+                    riverDataList.hr.Add(new RiverData
+                    {
+                        ofc = oi.ofc,
+                        obc = oi.obc,
+                        obn = oi.obn,
+                        plaw = Observation.StringToDouble(oi.plaw),
+                        danw = Observation.StringToDouble(oi.danw),
+                        spcw = Observation.StringToDouble(oi.spcw),
+                        cauw = Observation.StringToDouble(oi.cauw),
+                        spfw = Observation.StringToDouble(oi.spfw),
+                        lat = oi.lat,
+                        lng = oi.lng,
+                        d10_val = rs.d10_val[SeriesNumber - 1],
+                        d10_si = rs.d10_si[SeriesNumber - 1],
+                        dt = doidt
+                    });
+
+                    File.WriteAllText(path, JsonConvert.SerializeObject(rs));
+                    number++;
+                }
+                catch (Exception e1)
+                {
+                    LoggerClass.NLogInfo("水位累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
+                }
             }
-            catch
-            {
-                PrevObservationTime = default(DateTime);
-                return true;
-            }
+            File.WriteAllText(Path.Combine("Data", "Road", "RoadData.json"), JsonConvert.SerializeObject(riverDataList));
+
+            File.WriteAllText(Path.Combine("data", "RiverLevelObservationTime.text"), observationDateTime.ToString());
+            return number;
         }
+    }
+
+
+    public class RiverDataList
+    {
+        public DateTime dt { get; set; }
+        public List<RiverData> hr { get; set; }
+    }
+
+    public class RiverData
+    {
+        /// 事務所コード
+        public int ofc { get; set; }
+        /// 観測局コード
+        public int obc { get; set; }
+        /// 観測局名称
+        public string obn { get; set; }
+        /// 通報水位
+        public double? plaw { get; set; }
+        /// 警戒水位
+        public double? danw { get; set; }
+        /// 特別警戒水位
+        public Double? spcw { get; set; }
+        /// 危険水位
+        public double? cauw { get; set; }
+        /// 計画高水位
+        public double? spfw { get; set; }
+        /// 緯度
+        public double lat { get; set; }
+        /// 経度
+        public double lng { get; set; }
+        /// 水位
+        public double? d10_val { get; set; }
+        /// 水位ステータス
+        public int d10_si { get; set; }
+        /// 水位変化
+        public int? d10_chg { get; set; }
+        /// 観測時間
+        public DateTime dt { get; set; }
+    }
+
+    public class RiverSeries
+    {
+        /// 事務所コード
+        public int ofc { get; set; }
+        /// 観測局コード
+        public int obc { get; set; }
+        /// 観測局名称
+        public string obn { get; set; }
+        /// 通報水位
+        public double? plaw { get; set; }
+        /// 警戒水位
+        public double? danw { get; set; }
+        /// 特別警戒水位
+        public double? spcw { get; set; }
+        /// 危険水位
+        public double? cauw { get; set; }
+        /// 計画高水位
+        public double? spfw { get; set; }
+        // 観測時間
+        public DateTime[] ot { get; set; }
+        // 水位
+        public double?[] d10_val { get; set; }
+        public int[] d10_si { get; set; }
     }
 
     /// 水位データ

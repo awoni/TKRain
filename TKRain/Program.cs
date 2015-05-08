@@ -14,6 +14,7 @@ namespace TKRain
     {
         static void Main(string[] args)
         {
+            LoggerClass.NLogInfo("処理開始");
             string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             Directory.SetCurrentDirectory(path);
             if (!Directory.Exists(Path.Combine("Data", "Rain")))
@@ -28,15 +29,20 @@ namespace TKRain
                 Directory.CreateDirectory("Config");
 
             Observation.ObservationIni();
-
             List<Task> ObsTask = new List<Task>();
+            DateTime prevObservationTime;
 
             try {
-                LoggerClass.NLogInfo("処理開始");
-                var rainfall = new Rainfall();
-                int number = rainfall.GetRainfallData();
-                LoggerClass.NLogInfo("雨量処理件数: " + number + "件");
-                ObsTask.Add(Observation.AmazonS3DirctoryUpload("Rain", 0));
+                if (Observation.IsUpdateRequired("RainfallObservationTime.text", out prevObservationTime))
+                {
+                    var rainfall = new Rainfall();
+                    int number = rainfall.GetRainfallData(prevObservationTime);
+                    LoggerClass.NLogInfo("雨量処理件数: " + number + "件");
+#if !DEBUG
+                    if(number > 0)
+                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("Rain", 0));
+#endif
+                }
             }
             catch(Exception e1)
             {
@@ -45,8 +51,16 @@ namespace TKRain
 
             try
             {
-                var riverLevel = new RiverLebel();
-                riverLevel.GetRiverLevelData();
+                if (Observation.IsUpdateRequired("RiverLevelObservationTime.text", out prevObservationTime))
+                {
+                    var riverLevel = new RiverLebel();
+                    int number = riverLevel.GetRiverLevelData(prevObservationTime);
+                    LoggerClass.NLogInfo("水位処理件数: " + number + "件");
+#if !DEBUG
+                    if(number > 0)
+                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("River", 0));
+#endif
+                }
             }
             catch (Exception e1)
             {
@@ -55,17 +69,28 @@ namespace TKRain
 
             try
             {
-                var roadWeather = new RoadWeather();
-                roadWeather.GetRoadWeatherData();
+                if (Observation.IsUpdateRequired("RoadWeatherObservationTime.text", out prevObservationTime))
+                {
+                    var roadWeather = new RoadWeather();
+                    int number = roadWeather.GetRoadWeatherData(prevObservationTime);
+                    LoggerClass.NLogInfo("道路気象処理件数: " + number + "件");
+#if !DEBUG
+                    if(number > 0)
+                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("Road", 0));
+#endif
+                }
             }
             catch (Exception e1)
             {
                 LoggerClass.NLogInfo("道路気象ルーチンエラー: " + e1.Message);
             }
 
-            try { 
-                var damInfo = new DamInfo();
-                damInfo.GetDamInfoData();
+            try {
+                if (Observation.IsUpdateRequired("DamObservationTime.text", out prevObservationTime))
+                {
+                    var damInfo = new DamInfo();
+                    damInfo.GetDamInfoData(prevObservationTime);
+                }
             }
             catch (Exception e1)
             {

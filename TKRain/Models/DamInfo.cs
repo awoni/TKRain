@@ -50,11 +50,9 @@ namespace TKRain.Models
             File.WriteAllText(path, JsonConvert.SerializeObject(stationInfoList));
         }
 
-        public int GetDamInfoData()
+        public int GetDamInfoData(DateTime prevObservationTime)
         {
-            DateTime prevObservationTim;
-            if (!IsUpdateRequired(out prevObservationTim))
-                return 0;
+            
 
             DamDocd data = Observation.TgGetStream<DamDocd>(DamInfoUrl, 0);
             if (data == null)
@@ -65,7 +63,7 @@ namespace TKRain.Models
                 DateTime.Parse(observationTime.Substring(0, observationTime.Length - 6)).AddDays(1)
                 : DateTime.Parse(observationTime);
 
-            if (observationDateTime <= prevObservationTim)
+            if (observationDateTime <= prevObservationTime)
                 return 0;
 
             
@@ -80,23 +78,6 @@ namespace TKRain.Models
 
             File.WriteAllText(Path.Combine("data", "DamObservationTime.text"), observationDateTime.ToString());
             return 0;
-        }
-
-        private bool IsUpdateRequired(out DateTime PrevObservationTime)
-        {
-            try
-            {
-                PrevObservationTime = DateTime.Parse(File.ReadAllText(Path.Combine("data", "DamObservationTime.text")));
-                //10分ごとに更新
-                if ((DateTime.Now - PrevObservationTime).Ticks >= 6000000000L)
-                    return true;
-                return false;
-            }
-            catch
-            {
-                PrevObservationTime = default(DateTime);
-                return true;
-            }
         }
     }
 
