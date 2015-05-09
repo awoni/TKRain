@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="icon" href="/favicon.ico">
 
-    <title>徳島の現在の雨量</title>
+    <title>徳島の現在の気象状況</title>
 
     <link href="/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/site.min.css" rel="stylesheet">
@@ -36,17 +36,17 @@
             </div>
             <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">雨量</a></li>
+                    <li><a href="/Rain.html">雨量</a></li>
                     <li><a href="/River.html">水位</a></li>
-                    <li><a href="/Road.html">気温</a></li>
+                    <li class="active"><a href="/Road.html">気温</a></li>
                 </ul>
             </div><!--/.nav-collapse -->
         </div>
     </nav>
 
-    <div class="container">
-        <h2>徳島の現在の雨量</h2>
-        <div id="id01"></div>
+    <div class="container">    
+    <h2><span id="place0"></span>の気温</h2>
+    <div id="id02"></div>
 
     </div><!-- /.container -->
     <!-- Bootstrap core JavaScript
@@ -54,9 +54,9 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="/lib/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/lib/rain.min.js"></script>
+    <script src="/lib/road.min.js"></script>
     <script>
-        window.onload = setRain();
+        setRoadData();
     </script>
 </body>
 </html>

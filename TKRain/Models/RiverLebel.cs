@@ -147,12 +147,27 @@ namespace TKRain.Models
                     }
 
                     rs.ot[SeriesNumber - 1] = doidt;
-                    double dresult;
-                    if (double.TryParse(oi.odd.wd.d10_10m.ov, out dresult))
-                        rs.d10_val[SeriesNumber - 1] = dresult;
-                    else
-                        rs.d10_val[SeriesNumber - 1] = null;
+                    rs.d10_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.wd.d10_10m.ov);
                     rs.d10_si[SeriesNumber - 1] = oi.odd.wd.d10_10m.osi;
+
+                    //現況水位一覧の作成
+                    //正時しかデータを収集していない観測局があるので、正時まで有効なデータがないか検索している
+                    int sn = SeriesNumber - 1;
+                    DateTime odt = rs.ot[sn];
+                    int nhour = doidt.Minute / 10;
+                    bool flag = false;
+
+                    for (; sn > SeriesNumber - 2 - nhour; sn--)
+                    {
+                        if (rs.d10_si[sn] == 0)
+                        {
+                            flag = true;
+                            break; ;
+                        }
+                    }
+
+                    if (!flag)
+                        sn = SeriesNumber - 1;
 
                     riverDataList.hr.Add(new RiverData
                     {
@@ -166,9 +181,9 @@ namespace TKRain.Models
                         spfw = Observation.StringToDouble(oi.spfw),
                         lat = oi.lat,
                         lng = oi.lng,
-                        d10_val = rs.d10_val[SeriesNumber - 1],
-                        d10_si = rs.d10_si[SeriesNumber - 1],
-                        dt = doidt
+                        d10_val = rs.d10_val[sn],
+                        d10_si = rs.d10_si[sn],
+                        dt = rs.ot[sn]
                     });
 
                     File.WriteAllText(path, JsonConvert.SerializeObject(rs));
@@ -179,7 +194,7 @@ namespace TKRain.Models
                     LoggerClass.NLogInfo("水位累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
                 }
             }
-            File.WriteAllText(Path.Combine("Data", "Road", "RoadData.json"), JsonConvert.SerializeObject(riverDataList));
+            File.WriteAllText(Path.Combine("Data", "River", "RiverData.json"), JsonConvert.SerializeObject(riverDataList));
 
             File.WriteAllText(Path.Combine("data", "RiverLevelObservationTime.text"), observationDateTime.ToString());
             return number;

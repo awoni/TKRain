@@ -85,11 +85,17 @@ namespace TKRain
                 LoggerClass.NLogInfo("道路気象ルーチンエラー: " + e1.Message);
             }
 
-            try {
+            try
+            {
                 if (Observation.IsUpdateRequired("DamObservationTime.text", out prevObservationTime))
                 {
                     var damInfo = new DamInfo();
-                    damInfo.GetDamInfoData(prevObservationTime);
+                    int number = damInfo.GetDamInfoData(prevObservationTime);
+                    LoggerClass.NLogInfo("ダム情報処理件数: " + number + "件");
+#if !DEBUG
+                    if (number > 0)
+                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("Road", 0));
+#endif              
                 }
             }
             catch (Exception e1)

@@ -20,7 +20,8 @@ using Amazon.S3.Transfer;
 // 道路気象：　00302
 // ダム諸量：　00007
 
-
+//所在地を取得するXML
+//http://www1.road.pref.tokushima.jp/c6/xml90000/00000_00000_00000.xml
 
 namespace TKRain.Models
 {

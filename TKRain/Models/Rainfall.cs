@@ -87,7 +87,6 @@ namespace TKRain.Models
             foreach (var oi in data.oi)
             {
                 try {
-                    /// ToDo 24:00 の例外処理が必要
                     DateTime doidt = observationDateTime;
                     if (observationTime != oi.odd.rd.d10_10m.ot)
                     {
@@ -176,36 +175,44 @@ namespace TKRain.Models
                         rs.d10_1h_val[SeriesNumber - 1] = null;
                         rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 1];
                     }
-                    else if (rs.d70_10m_si[SeriesNumber - 7] != 0)
+                    else if(rs.d70_10m_val[SeriesNumber - 1] == 0)
                     {
-                        rs.d10_1h_val[SeriesNumber - 1] = null;
-                        rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 7];
-                    } else
+                        rs.d10_1h_val[SeriesNumber - 1] = 0;
+                        rs.d10_1h_si[SeriesNumber - 1] = 0;
+                    }
+                    else if(rs.d70_10m_si[SeriesNumber - 7] == 0)
                     {
                         rs.d10_1h_val[SeriesNumber - 1] = rs.d70_10m_val[SeriesNumber - 1] - rs.d70_10m_val[SeriesNumber - 7];
                         if (rs.d10_1h_val[SeriesNumber - 1] < 0)
                             rs.d10_1h_val[SeriesNumber - 1] = 0;
                         rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 7];
                     }
-
-                    int? val = rs.d10_1h_val[SeriesNumber - 1];
-                    int si = rs.d10_1h_si[SeriesNumber - 1];
-                    DateTime odt = rs.ot[SeriesNumber - 1];
-                    if (si != 0)
+                    else
                     {
-                        int hour = doidt.Hour / 10;
-                        int n = SeriesNumber - 2;
-                        for (int m = hour; m > 0; m--)
+                        rs.d10_1h_val[SeriesNumber - 1] = null;
+                        rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 7];
+                    }
+
+
+                    //現況雨量一覧の作成
+                    //正時しかデータを収集していない観測局があるので、正時まで有効なデータがないか検索している
+
+                    int sn = SeriesNumber - 1;
+                    DateTime odt = rs.ot[sn];
+                    int nhour = doidt.Minute / 10;
+                    bool flag = false;
+
+                    for(; sn > SeriesNumber - 2 - nhour; sn--)
+                    {
+                        if (rs.d70_10m_si[sn] == 0)
                         {
-                            if (rs.d10_1h_si[n] == 0)
-                            {
-                                val = rs.d10_1h_val[n];
-                                si = 0;
-                                odt = rs.ot[n];
-                            }
-                            n--;
+                            flag = true;
+                            break; ;
                         }
                     }
+
+                    if (!flag)
+                        sn = SeriesNumber - 1;
 
                     hourRainList.hr.Add(new HourRain {
                         ofc = oi.ofc,
@@ -213,11 +220,11 @@ namespace TKRain.Models
                         obn = oi.obn,
                         lat = oi.lat,
                         lng = oi.lng,
-                        d10_1h_val = rs.d10_1h_val[SeriesNumber - 1],
-                        d10_1h_si = rs.d10_1h_si[SeriesNumber - 1],
-                        d70_10m_val = val,
-                        d70_10m_si = si,
-                        dt = odt
+                        d10_1h_val = rs.d10_1h_val[sn],
+                        d10_1h_si = rs.d10_1h_si[sn],
+                        d70_10m_val = rs.d70_10m_val[sn],
+                        d70_10m_si = rs.d70_10m_si[sn],
+                        dt = rs.ot[sn]
                     });
 
                     File.WriteAllText(path, JsonConvert.SerializeObject(rs));
