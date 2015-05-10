@@ -3,30 +3,6 @@
     hr: RiverData[]
 }
 
-/*
-        public double? plaw { get; set; }
-        /// 警戒水位
-        public double? danw { get; set; }
-        /// 特別警戒水位
-        public Double? spcw { get; set; }
-        /// 危険水位
-        public double? cauw { get; set; }
-        /// 計画高水位
-        public double? spfw { get; set; }
-        /// 緯度
-        public double lat { get; set; }
-        /// 経度
-        public double lng { get; set; }
-        /// 水位
-        public double? d10_val { get; set; }
-        /// 水位ステータス
-        public int d10_si { get; set; }
-        /// 水位変化
-        public int? d10_chg { get; set; }
-        /// 観測時間
-        public DateTime dt { get; set; }
-*/
-
 interface RiverData {
     /// 事務所コード
     ofc: number
@@ -34,13 +10,13 @@ interface RiverData {
     obc: number
     /// 観測局名称
     obn: string
-    /// 通報水位
+    /// 水防団待機水位
     plaw; number
-    /// 警戒水位
+    /// はん濫注意水位
     danw: number
-    /// 特別警戒水位
+    /// 避難判断水位
     spcw: number
-     /// 危険水位
+     /// はん濫危険水位
     cauw: number
     /// 計画高水位
     spfw: number
@@ -82,18 +58,17 @@ interface RiverSeries {
     d10_si: number[]
 }
 
-var urlRiver = "http://tk.ecitizen.jp/Data/River/RiverData.json";
-var urlRiver0 = "http://tk.ecitizen.jp/Data/River/"
+var riverUrl = "http://tk.ecitizen.jp/Data/River/";
 
 function setRiver() {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             var data = JSON.parse(xmlhttp.responseText);
-            riverSummaryTable(data, urlRiver);
+            riverSummaryTable(data);
         }
     }
-    xmlhttp.open("GET", urlRiver, true);
+    xmlhttp.open("GET", riverUrl + "RiverData.json", true);
     xmlhttp.send();
 }
 
@@ -106,7 +81,7 @@ function setRiverData() {
     riverGetDetail(station);
 }
 
-function riverSummaryTable(data: RiverDataList, url: string) {
+function riverSummaryTable(data: RiverDataList) {
     var out = "<table class='table table-bordered'>";
     out += "<tr><th>場所</th><th>水位</th><th>水位変化</th><th>観測時間<th>リンク</th></tr>";
     var i;
@@ -116,27 +91,38 @@ function riverSummaryTable(data: RiverDataList, url: string) {
         '</td><td><a href="RiverData.html?station=' + data.hr[i].ofc + '-' + data.hr[i].obc + '">リンク</a></td></tr>';
     }
     out += "<table>";
-    out += "<p>データ: " + url + "</p>";
+    out += "<p>データ: " + riverUrl + "RiverData.json" + "</p>";
     document.getElementById("id01").innerHTML = out;
 }
 
 function riverGetDetail(place: string) {
     var xmlhttp1 = new XMLHttpRequest();
-    var url1 = urlRiver0 + place + ".json";
+    var url = riverUrl + place + ".json";
 
     xmlhttp1.onreadystatechange = function () {
         if (xmlhttp1.readyState == 4 && xmlhttp1.status == 200) {
             var data = JSON.parse(xmlhttp1.responseText);
-            riverDetailTable(data, url1);
+            riverDetailTable(data, url);
         }
     }
-    xmlhttp1.open("GET", url1, true);
+    xmlhttp1.open("GET", url, true);
     xmlhttp1.send();
 }
 
 function riverDetailTable(data: RiverSeries, url: string) {
     document.getElementById("place0").innerHTML = data.obn;
-    var out = "<table class='table table-bordered'>";
+    var out = "";
+    if (data.plaw != null)
+        out += "<p>水防団待機水位: " + data.plaw + "m</p>"
+    if (data.danw != null)
+        out += "<p>はん濫注意水位: " + data.danw + "m</p>"
+    if (data.spcw != null)
+        out += "<p>避難判断水位: " + data.spcw + "m</p>"
+    if (data.cauw != null)
+        out += "<p>はん濫危険水位: " + data.cauw + "m</p>"
+    if (data.spfw != null)
+        out += "<p>計画高水位: " + data.spfw + "m</p>"
+    out += "<table class='table table-bordered'>";
     out += "<tr><th>観測時間</th><th>水位</th><th>ステータス</th></tr>";
     var i;
     for (i = 0; i < data.ot.length; i++) {

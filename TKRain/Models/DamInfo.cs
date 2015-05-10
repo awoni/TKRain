@@ -197,46 +197,70 @@ namespace TKRain.Models
                             rs.d10070_si[n] = -1;
                     }
 
-                    rs.ot[SeriesNumber - 1] = doidt;
-                    rs.d10_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.dd.d70_10m.ov);
-                    rs.d10_si[SeriesNumber - 1] = oi.odd.dd.d10_10m.osi;
-                    rs.d20_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.dd.d70_10m.ov);
-                    rs.d20_si[SeriesNumber - 1] = oi.odd.dd.d20_10m.osi; ;
-                    rs.d40_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.dd.d70_10m.ov);
-                    rs.d40_si[SeriesNumber - 1] = oi.odd.dd.d40_10m.osi; ;
-                    rs.d50_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.dd.d70_10m.ov);
-                    rs.d50_si[SeriesNumber - 1] = oi.odd.dd.d50_10m.osi; ;
-                    rs.d70_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.dd.d70_10m.ov);
-                    rs.d70_si[SeriesNumber - 1] = oi.odd.dd.d70_10m.osi; ;
-                    rs.d10010_10m_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.dd.d70_10m.ov);
-                    rs.d10010_10m_si[SeriesNumber - 1] = oi.odd.dd.d10010_10m.osi; ;
-                    rs.d10010_1h_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.dd.d70_10m.ov);
-                    rs.d10010_1h_si[SeriesNumber - 1] = oi.odd.dd.d10010_1h.osi; ;
-                    rs.d10070_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.dd.d70_10m.ov);
-                    rs.d10070_si[SeriesNumber - 1] = oi.odd.dd.d10070_10m.osi; ;
+                    int sn = SeriesNumber - 1;
 
-                    /*
+                    rs.ot[sn] = doidt;
+                    rs.d10_val[sn] = Observation.StringToDouble(oi.odd.dd.d10_10m.ov);
+                    rs.d10_si[sn] = oi.odd.dd.d10_10m.osi;
+                    rs.d20_val[sn] = Observation.StringToDouble(oi.odd.dd.d20_10m.ov);
+                    rs.d20_si[sn] = oi.odd.dd.d20_10m.osi; ;
+                    rs.d40_val[sn] = Observation.StringToDouble(oi.odd.dd.d40_10m.ov);
+                    rs.d40_si[sn] = oi.odd.dd.d40_10m.osi; ;
+                    rs.d50_val[sn] = Observation.StringToDouble(oi.odd.dd.d50_10m.ov);
+                    rs.d50_si[sn] = oi.odd.dd.d50_10m.osi; ;
+                    rs.d70_val[sn] = Observation.StringToDouble(oi.odd.dd.d70_10m.ov);
+                    rs.d70_si[sn] = oi.odd.dd.d70_10m.osi; ;
+                    rs.d10010_10m_val[sn] = Observation.StringToDouble(oi.odd.dd.d10010_10m.ov);
+                    rs.d10010_10m_si[sn] = oi.odd.dd.d10010_10m.osi; ;
+                    rs.d10010_1h_val[sn] = Observation.StringToDouble(oi.odd.dd.d10010_1h.ov);
+                    rs.d10010_1h_si[sn] = oi.odd.dd.d10010_1h.osi; ;
+                    rs.d10070_val[sn] = Observation.StringToDouble(oi.odd.dd.d10070_10m.ov);
+                    rs.d10070_si[sn] = oi.odd.dd.d10070_10m.osi; ;
+
                     //10分毎の時間雨量の計算
-                    if (rs.d70_10m_si[SeriesNumber - 1] != 0)
+                    if (rs.d10070_si[sn] != 0)
                     {
-                        rs.d10_1h_val[SeriesNumber - 1] = null;
-                        rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 1];
+                        rs.d10010_1h_val[sn] = null;
+                        rs.d10010_1h_si[sn] = rs.d10070_si[sn];
                     }
-                    else if (rs.d70_10m_si[SeriesNumber - 7] == 0 || rs.d70_10m_val[SeriesNumber - 1] == 0)
+                    else if (rs.d70_val[sn] == 0)
                     {
-                        rs.d10_1h_val[SeriesNumber - 1] = rs.d70_10m_val[SeriesNumber - 1] - rs.d70_10m_val[SeriesNumber - 7];
-                        if (rs.d10_1h_val[SeriesNumber - 1] < 0)
-                            rs.d10_1h_val[SeriesNumber - 1] = 0;
-                        rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 7];
+                        rs.d10010_1h_val[sn] = 0;
+                        rs.d10010_1h_si[sn] = 0;
+                    }
+                    else if (rs.d10070_si[sn - 6] == 0)
+                    {
+                        rs.d10010_1h_val[sn] = rs.d10070_val[sn] - rs.d10070_val[sn - 6];
+                        if (rs.d10010_1h_val[sn] < 0)
+                            rs.d10010_1h_val[sn] = 0;
+                        rs.d10010_1h_si[sn] = 0;
                     }
                     else
                     {
-                        rs.d10_1h_val[SeriesNumber - 1] = null;
-                        rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 7];
+                        rs.d10010_1h_val[sn] = null;
+                        rs.d10010_1h_si[sn] = rs.d10070_si[sn - 6];
                     }
-                    */
 
-                    int sn = SeriesNumber - 1;
+                    //現況ダム情報一覧の作成
+                    //正時しかデータを収集していない観測局があるので、正時まで有効なデータがないか検索している
+                    //すべての観測局が収集しているのが放流量なので、d70で確認
+              
+                    DateTime odt = rs.ot[sn];
+                    int nminute = doidt.Minute / 10;
+                    bool flag = false;
+
+                    for (; sn > SeriesNumber - 2 - nminute; sn--)
+                    {
+                        if (rs.d70_si[sn] == 0)
+                        {
+                            flag = true;
+                            break; ;
+                        }
+                    }
+
+                    if (!flag)
+                        sn = SeriesNumber - 1;
+
 
                     damDataList.hr.Add(new DamData
                     {
@@ -269,7 +293,7 @@ namespace TKRain.Models
                 }
                 catch (Exception e1)
                 {
-                    LoggerClass.NLogInfo("雨量累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
+                    LoggerClass.NLogInfo("ダム情報累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
                 }
             }
             File.WriteAllText(Path.Combine("Data", "Dam", "DamData.json"), JsonConvert.SerializeObject(damDataList));

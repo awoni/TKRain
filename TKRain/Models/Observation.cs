@@ -11,6 +11,7 @@ using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
+using System.Xml.Serialization;
 
 //徳島県　雨量、水位情報
 //最新の観測データ http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00001.xml
@@ -31,12 +32,14 @@ namespace TKRain.Models
         private static string AWSSecretKey;
         private static string BucketName;
 
+
         public static void ObservationIni()
         {
             AWSAccesskey = Properties.Settings.Default.AWSAccessKey;
             AWSSecretKey = Properties.Settings.Default.AWSSecretKey;
             BucketName = Properties.Settings.Default.BucketName;
         }
+
         public static T TgGetStream<T>(string url, int ntry)
         {
             try
@@ -181,6 +184,13 @@ namespace TKRain.Models
         public double lat { get; set; }
         /// 経度
         public double lng { get; set; }
+    }
+
+    public class RainStationList : List<RainStationInfo> { }
+    public class RainStationInfo: StationInfo
+    {
+        /// 所在地
+        public string obl { get; set; }
     }
 
     /// 雨量状況図のデータ

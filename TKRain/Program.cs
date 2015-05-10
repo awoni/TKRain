@@ -37,11 +37,13 @@ namespace TKRain
                 {
                     var rainfall = new Rainfall();
                     int number = rainfall.GetRainfallData(prevObservationTime);
-                    LoggerClass.NLogInfo("雨量処理件数: " + number + "件");
+                    if (number > 0)
+                    {
+                        LoggerClass.NLogInfo("雨量処理件数: " + number + "件");
 #if !DEBUG
-                    if(number > 0)
                         ObsTask.Add(Observation.AmazonS3DirctoryUpload("Rain", 0));
 #endif
+                    }
                 }
             }
             catch(Exception e1)
@@ -55,11 +57,13 @@ namespace TKRain
                 {
                     var riverLevel = new RiverLebel();
                     int number = riverLevel.GetRiverLevelData(prevObservationTime);
-                    LoggerClass.NLogInfo("水位処理件数: " + number + "件");
+                    if (number > 0)
+                    {
+                        LoggerClass.NLogInfo("水位処理件数: " + number + "件");
 #if !DEBUG
-                    if(number > 0)
                         ObsTask.Add(Observation.AmazonS3DirctoryUpload("River", 0));
 #endif
+                    }
                 }
             }
             catch (Exception e1)
@@ -73,11 +77,13 @@ namespace TKRain
                 {
                     var roadWeather = new RoadWeather();
                     int number = roadWeather.GetRoadWeatherData(prevObservationTime);
-                    LoggerClass.NLogInfo("道路気象処理件数: " + number + "件");
+                    if (number > 0)
+                    {
+                        LoggerClass.NLogInfo("道路気象処理件数: " + number + "件");
 #if !DEBUG
-                    if(number > 0)
                         ObsTask.Add(Observation.AmazonS3DirctoryUpload("Road", 0));
 #endif
+                    }
                 }
             }
             catch (Exception e1)
@@ -91,11 +97,13 @@ namespace TKRain
                 {
                     var damInfo = new DamInfo();
                     int number = damInfo.GetDamInfoData(prevObservationTime);
-                    LoggerClass.NLogInfo("ダム情報処理件数: " + number + "件");
-#if !DEBUG
                     if (number > 0)
-                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("Road", 0));
-#endif              
+                    {
+                        LoggerClass.NLogInfo("ダム情報処理件数: " + number + "件");
+#if !DEBUG
+                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("Dam", 0));
+#endif
+                    }            
                 }
             }
             catch (Exception e1)

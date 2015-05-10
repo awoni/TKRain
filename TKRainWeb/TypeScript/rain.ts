@@ -46,18 +46,17 @@ interface RainSeries {
     d70_10m_si: number[]
 }
 
-var url = "http://tk.ecitizen.jp/Data/Rain/RainData.json";
-var url0 = "http://tk.ecitizen.jp/Data/Rain/"
+var rainUrl = "http://tk.ecitizen.jp/Data/Rain/";
 
 function setRain() {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             var data = JSON.parse(xmlhttp.responseText);
-            rainSummaryTable(data, url);
+            rainSummaryTable(data, rainUrl + "RainData.json");
         }
     }
-    xmlhttp.open("GET", url, true);
+    xmlhttp.open("GET", rainUrl + "RainData.json", true);
     xmlhttp.send();
 }
 
@@ -86,15 +85,15 @@ function rainSummaryTable(data: RainDataList, url: string) {
 
 function rainGetDetail(place: string) {
     var xmlhttp1 = new XMLHttpRequest();
-    var url1 = url0 + place + ".json";
+    var url = rainUrl + place + ".json";
 
     xmlhttp1.onreadystatechange = function () {
         if (xmlhttp1.readyState == 4 && xmlhttp1.status == 200) {
             var data = JSON.parse(xmlhttp1.responseText);
-            rainDetailTable(data, url1);
+            rainDetailTable(data, url);
         }
     }
-    xmlhttp1.open("GET", url1, true);
+    xmlhttp1.open("GET", url, true);
     xmlhttp1.send();
 }
 

@@ -50,35 +50,29 @@ interface RoadSeries {
     d10070_si: number[]
 }
 
-var url = "http://tk.ecitizen.jp/Data/Road/RoadData.json";
-var url0 = "http://tk.ecitizen.jp/Data/Road/"
+var roadUrl = "http://tk.ecitizen.jp/Data/Road/";
 
 function setRoad() {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             var data = JSON.parse(xmlhttp.responseText);
-            roadSummaryTable(data, url);
+            roadSummaryTable(data);
         }
     }
-    xmlhttp.open("GET", url, true);
+    xmlhttp.open("GET", roadUrl + "RoadData.json", true);
     xmlhttp.send();
 }
 
 function setRoadData() {
-    var station: string = getParameterByName("station");
-    if (station === "")
+    var regex = new RegExp("[\\?&]station=([^&#]*)"),
+    results = regex.exec(location.search);
+    if (results === null)
         window.location.href = "Road.html";
-    roadGetDetail(station);
+    roadGetDetail(results[1]);
 }
 
-function getParameterByName(name): string {
-    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-        results = regex.exec(location.search);
-    return results === null ? "" : results[1];
-}
-
-function roadSummaryTable(data: RoadDataList, url: string) {
+function roadSummaryTable(data: RoadDataList) {
     var out = "<table class='table table-bordered'>";
     out += "<tr><th>場所</th><th>気温</th><th>風向</th><th>風速</th><th>観測時間</th><th>リンク</th></tr>";
     var i;
@@ -88,23 +82,23 @@ function roadSummaryTable(data: RoadDataList, url: string) {
         '</td><td><a href="RoadData.html?station=' + data.hr[i].ofc + '-' + data.hr[i].obc + '">リンク</a></td></tr>';
     }
     out += "<table>";
-    out += "<p>データ: " + url + "</p>";
+    out += "<p>データ: " + roadUrl + "RoadData.json" + "</p>";
     document.getElementById("id01").innerHTML = out;
 }
 
 function roadGetDetail(place: string)
 {
-    var xmlhttp1 = new XMLHttpRequest();
-    var url1 = url0 + place + ".json";
+    var xmlhttp = new XMLHttpRequest();
+    var url = roadUrl + place + ".json";
 
-    xmlhttp1.onreadystatechange = function () {
-        if (xmlhttp1.readyState == 4 && xmlhttp1.status == 200) {
-            var data = JSON.parse(xmlhttp1.responseText);
-            roadDetailTable(data, url1);
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            var data = JSON.parse(xmlhttp.responseText);
+            roadDetailTable(data, url);
         }
     }
-    xmlhttp1.open("GET", url1, true);
-    xmlhttp1.send();
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
 }
 
 function roadDetailTable(data: RoadSeries, url: string) {
