@@ -1,3 +1,6 @@
+// Copyright 2015 (c) Yasuhiro Niji
+// Use of this source code is governed by the MIT License,
+// as found in the LICENSE.txt file.
 var damUrl = "http://tk.ecitizen.jp/Data/Dam/";
 function setDam() {
     var xmlhttp = new XMLHttpRequest();

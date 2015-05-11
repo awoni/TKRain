@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright 2015 (c) Yasuhiro Niji
+// Use of this source code is governed by the MIT License,
+// as found in the LICENSE.txt file.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +29,8 @@ namespace TKRain
                 Directory.CreateDirectory(Path.Combine("Data", "Road"));
             if (!Directory.Exists(Path.Combine("Data", "Dam")))
                 Directory.CreateDirectory(Path.Combine("Data", "Dam"));
+            if (!Directory.Exists(Path.Combine("Data", "Tide")))
+                Directory.CreateDirectory(Path.Combine("Data", "Tide"));
             if (!Directory.Exists("Config"))
                 Directory.CreateDirectory("Config");
 
@@ -91,6 +97,7 @@ namespace TKRain
                 LoggerClass.NLogInfo("道路気象ルーチンエラー: " + e1.Message);
             }
 
+            //ダム情報
             try
             {
                 if (Observation.IsUpdateRequired("DamObservationTime.text", out prevObservationTime))
@@ -109,6 +116,27 @@ namespace TKRain
             catch (Exception e1)
             {
                 LoggerClass.NLogInfo("ダム情報ルーチンエラー: " + e1.Message);
+            }
+
+            //潮位
+            try
+            {
+                if (Observation.IsUpdateRequired("TideLevelObservationTime.text", out prevObservationTime))
+                {
+                    var tideLevel = new TideLevel();
+                    int number = tideLevel.GetTideLevelData(prevObservationTime);
+                    if (number > 0)
+                    {
+                        LoggerClass.NLogInfo("潮位処理件数: " + number + "件");
+#if !DEBUG
+                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("Tide", 0));
+#endif
+                    }
+                }
+            }
+            catch (Exception e1)
+            {
+                LoggerClass.NLogInfo("潮位ルーチンエラー: " + e1.Message);
             }
 
             Task.WaitAll(ObsTask.ToArray());

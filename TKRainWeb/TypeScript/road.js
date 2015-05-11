@@ -1,3 +1,6 @@
+// Copyright 2015 (c) Yasuhiro Niji
+// Use of this source code is governed by the MIT License,
+// as found in the LICENSE.txt file.
 var roadUrl = "http://tk.ecitizen.jp/Data/Road/";
 function setRoad() {
     var xmlhttp = new XMLHttpRequest();

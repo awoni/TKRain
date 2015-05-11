@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright 2015 (c) Yasuhiro Niji
+// Use of this source code is governed by the MIT License,
+// as found in the LICENSE.txt file.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -167,30 +171,6 @@ namespace TKRain.Models
                 return d;
             return null;
         }
-    }
-
-
-    public class StationInfoList : List<StationInfo> { }
-
-    public class StationInfo
-    {
-        /// 事務所コード
-        public int ofc { get; set; }
-        /// 観測局コード
-        public int obc { get; set; }
-        /// 観測局名称
-        public string obn { get; set; }
-        /// 緯度
-        public double lat { get; set; }
-        /// 経度
-        public double lng { get; set; }
-    }
-
-    public class RainStationList : List<RainStationInfo> { }
-    public class RainStationInfo: StationInfo
-    {
-        /// 所在地
-        public string obl { get; set; }
     }
 
     /// 雨量状況図のデータ

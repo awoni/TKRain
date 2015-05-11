@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright 2015 (c) Yasuhiro Niji
+// Use of this source code is governed by the MIT License,
+// as found in the LICENSE.txt file.
+
+    using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,11 +20,8 @@ namespace TKRain.Models
         const string StationUrl = "http://www1.road.pref.tokushima.jp/c6/xml90000/00000_00000_00000.xml";
         public static void GetStationInformations()
         {
-            string path = Path.Combine("Config", "RainfallStations.json");
-            string json = File.ReadAllText(path);
-            var stationInfoList = JsonConvert.DeserializeObject<StationInfoList>(json);
-
-            RainStationList rain = new RainStationList();
+    
+            TideStationList tide = new TideStationList();
 
             var sl = Observation.TgGetStream<StaionList>(StationUrl, 0);
             foreach (var om in sl.pom.pa.om)
@@ -28,11 +29,11 @@ namespace TKRain.Models
                 int ofc = om.ofc;
                 foreach (var o in om.obn)
                 {
-                    if (o.ikc == 1)
+                    if (o.ikc == 12)
                     {
                         double lat, lng;
                         XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
-                        rain.Add(new RainStationInfo
+                        tide.Add(new TideStationInfo
                         {
                             ofc = ofc,
                             obc = o.obc,
@@ -44,16 +45,41 @@ namespace TKRain.Models
                     }
                 }
             }
-
-            foreach (var sil in stationInfoList)
-            {
-                var r = rain.Find(x => x.ofc == sil.ofc && x.obc == sil.obc);
-                if (r == null)
-                    LoggerClass.NLogInfo("観測所のデータがない: " + sil.obn);
-                if (Math.Abs(r.lat - sil.lat) > 0.000001 || (Math.Abs(r.lng - sil.lng) > 0.000001))
-                    LoggerClass.NLogInfo("座標データ相違: " + sil.obn);
-            }
+            File.WriteAllText(Path.Combine("Config", "TideLevel.json"), JsonConvert.SerializeObject(tide));
         }
+    }
+
+    public class StationInfoList : List<StationInfo> { }
+
+    public class StationInfo
+    {
+        /// 管理事務所コード
+        public int mo { get; set; }
+        /// 観測局コード
+        public string sc { get; set; }
+        /// 事務所コード
+        public int ofc { get; set; }
+        /// 観測局番号
+        public int obc { get; set; }
+        /// 観測局名称
+        public string obn { get; set; }
+        /// 緯度
+        public double lat { get; set; }
+        /// 経度
+        public double lng { get; set; }
+    }
+
+    public class RainStationList : List<RainStationInfo> { }
+    public class RainStationInfo : StationInfo
+    {
+        /// 所在地
+        public string obl { get; set; }
+    }
+    public class TideStationList : List<TideStationInfo> { }
+    public class TideStationInfo : StationInfo
+    {
+        /// 所在地
+        public string obl { get; set; }
     }
 
     [XmlRoot("dmd")]
