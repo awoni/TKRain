@@ -36,6 +36,21 @@ namespace TKRain.Models
         private static string AWSSecretKey;
         private static string BucketName;
 
+        public static void SetupIni()
+        {
+            if (!Directory.Exists(Path.Combine("Data", "Rain")))
+                Directory.CreateDirectory(Path.Combine("Data", "Rain"));
+            if (!Directory.Exists(Path.Combine("Data", "River")))
+                Directory.CreateDirectory(Path.Combine("Data", "River"));
+            if (!Directory.Exists(Path.Combine("Data", "Road")))
+                Directory.CreateDirectory(Path.Combine("Data", "Road"));
+            if (!Directory.Exists(Path.Combine("Data", "Dam")))
+                Directory.CreateDirectory(Path.Combine("Data", "Dam"));
+            if (!Directory.Exists(Path.Combine("Data", "Tide")))
+                Directory.CreateDirectory(Path.Combine("Data", "Tide"));
+            if (!Directory.Exists("Config"))
+                Directory.CreateDirectory("Config");
+        }
 
         public static void ObservationIni()
         {

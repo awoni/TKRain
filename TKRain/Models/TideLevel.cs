@@ -18,14 +18,17 @@ namespace TKRain.Models
     class TideLevel
     {
         TideStationList stationInfoList;
-        const string TideLebelUrl = "http://www1.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_12.xml";
+        const string TideLevelUrl = "http://www1.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_12.xml";
         const int SeriesNumber = 3000;
 
         public TideLevel()
         {
             string path = Path.Combine("Config", "TideLevel.json");
             if (!File.Exists(path))
-                Stations.GetStationInformations();
+            {
+                Stations stations = new Stations();
+                stations.GetStationInformations();
+            }
             string json = File.ReadAllText(path);
             this.stationInfoList = JsonConvert.DeserializeObject<TideStationList > (json);
         }
@@ -34,7 +37,7 @@ namespace TKRain.Models
         {
             int number = 1;
 
-            TideSList data = Observation.TgGetStream<TideSList>(TideLebelUrl, 0);
+            TideSList data = Observation.TgGetStream<TideSList>(TideLevelUrl, 0);
             if (data == null)
                 return 0;
 
@@ -152,7 +155,55 @@ namespace TKRain.Models
             File.WriteAllText(Path.Combine("Data", "TideLevelObservationTime.text"), observationDateTime.ToString());
             return number;
         }
-        
+
+        public void SetTideInfo()
+        {
+
+            TideSList data = Observation.TgGetStream<TideSList>(TideLevelUrl, 0);
+            if (data == null)
+                return;
+
+            string j = File.ReadAllText(Path.Combine("Data", "Config", "TideLevel.json"));
+            TideStationList stationInfoList = JsonConvert.DeserializeObject<TideStationList>(j);
+
+            //累積データヘッダー部分の修正
+            foreach (var oi in data.Sym)
+            {
+                try
+                {
+                    TideSeries rs;
+                    string[] ocb = oi.Ocb.Split(',');
+                    string sc = ocb[0] + "-" + ocb[1];
+             
+                    string path = Path.Combine("Data", "Road", sc + ".json");
+                    if (File.Exists(path))
+                    {
+                        string json = File.ReadAllText(path);
+                        rs = JsonConvert.DeserializeObject<TideSeries>(json);
+
+                        var si = stationInfoList.Find(x => x.sc == sc);
+                        if (si == null)
+                        {
+                            LoggerClass.NLogInfo("該当の観測所情報がない 観測所: " + oi.Nm);
+                            continue;
+                        }
+
+                        rs.mo = si.mo;
+                        rs.sc = si.sc;
+                        rs.obn = si.obn;
+                        rs.lat = si.lat;
+                        rs.lng = si.lng;
+                        rs.obl = si.obl;
+                        File.WriteAllText(path, JsonConvert.SerializeObject(rs));
+                    }
+                }
+                catch (Exception e1)
+                {
+                    LoggerClass.NLogInfo("雨量観測所情報修正エラー 観測所: " + oi.Nm + " メッセージ: " + e1.Message);
+                }
+            }
+        }
+
     }
 
     public class TideDataList
@@ -188,7 +239,12 @@ namespace TKRain.Models
         public string sc { get; set; }
         /// 観測局名称
         public string obn { get; set; }
-        // 観測時間
+        /// 緯度
+        public double lat { get; set; }
+        /// 経度
+        public double lng { get; set; }
+        /// 所在地
+        public string obl { get; set; } // 観測時間
         public DateTime[] ot { get; set; }
         // 潮位
         public double?[] level { get; set; }

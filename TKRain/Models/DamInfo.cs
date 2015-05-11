@@ -305,6 +305,59 @@ namespace TKRain.Models
             File.WriteAllText(Path.Combine("data", "DamObservationTime.text"), observationDateTime.ToString());
             return number;
         }
+
+        //累積データの観測所情報の更新
+        public void SetDamInfo()
+        {
+
+            DamDocd data = Observation.TgGetStream<DamDocd>(DamInfoUrl, 0);
+            if (data == null)
+                return;
+
+            string j = File.ReadAllText(Path.Combine("Data", "Config", "DamInfo.json"));
+            DamStationList stationInfoList = JsonConvert.DeserializeObject<DamStationList>(j);
+
+            //累積データヘッダー部分の修正
+            foreach (var oi in data.oi)
+            {
+                try
+                {
+                    DamSeries rs;
+                    string sc = oi.ofc + "-" + oi.obc;
+                    string path = Path.Combine("Data", "Dam", sc + ".json");
+                    if (File.Exists(path))
+                    {
+                        string json = File.ReadAllText(path);
+                        rs = JsonConvert.DeserializeObject<DamSeries>(json);
+
+                        var si = stationInfoList.Find(x => x.sc == sc);
+                        if (si == null)
+                        {
+                            LoggerClass.NLogInfo("該当の観測所情報がない 観測所: " + oi.obn);
+                            continue;
+                        }
+                        //rsn rn gmax gmin
+                        rs.mo = si.mo;
+                        rs.sc = si.sc;
+                        rs.ofc = si.ofc;
+                        rs.obc = si.obc;
+                        rs.obn = si.obn;
+                        rs.lat = si.lat;
+                        rs.lng = si.lng;
+                        rs.obl = si.obl;
+                        rs.rsn = si.rsn;
+                        rs.rn = si.rn;
+                        rs.gmax = si.gmax;
+                        rs.gmin = si.gmin;
+                        File.WriteAllText(path, JsonConvert.SerializeObject(rs));
+                    }
+                }
+                catch (Exception e1)
+                {
+                    LoggerClass.NLogInfo("ダム情報修正エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
+                }
+            }
+        }
     }
 
 
@@ -357,12 +410,30 @@ namespace TKRain.Models
     //ダム情報時系列データ
     public class DamSeries
     {
+        /// 管理事務所コード
+        public int mo { get; set; }
+        /// 観測局コード
+        public string sc { get; set; }
         /// 事務所コード
         public int ofc { get; set; }
-        /// 観測局コード
+        /// 観測局番号
         public int obc { get; set; }
         /// 観測局名称
         public string obn { get; set; }
+        /// 緯度
+        public double lat { get; set; }
+        /// 経度
+        public double lng { get; set; }
+        /// 所在地
+        public string obl { get; set; }
+        /// 水系
+        public string rsn { get; set; }
+        /// 河川名
+        public string rn { get; set; }
+        /// グラフ最大値
+        public string gmax { get; set; }
+        /// グラフ最小値
+        public string gmin { get; set; }
         /// <summary>
         /// 観測時間
         /// </summary>

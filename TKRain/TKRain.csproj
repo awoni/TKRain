@@ -88,7 +88,7 @@
     <Compile Include="Models\Observation.cs" />
     <Compile Include="Models\Rainfall.cs" />
     <Compile Include="Models\RoadWeather.cs" />
-    <Compile Include="Models\RiverLebel.cs" />
+    <Compile Include="Models\RiverLevel.cs" />
     <Compile Include="Models\Stations.cs" />
     <Compile Include="Models\TideLevel.cs" />
     <Compile Include="Program.cs" />

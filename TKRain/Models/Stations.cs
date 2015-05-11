@@ -2,7 +2,7 @@
 // Use of this source code is governed by the MIT License,
 // as found in the LICENSE.txt file.
 
-    using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,16 +12,43 @@ using System.Net.Http;
 using System.Net;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
+using System.Collections;
 
 namespace TKRain.Models
 {
     class Stations
     {
         const string StationUrl = "http://www1.road.pref.tokushima.jp/c6/xml90000/00000_00000_00000.xml";
-        public static void GetStationInformations()
+
+        private class ManageOffice
         {
-    
+            public string Address { get; set; }
+            public int Office { get; set; }
+        }
+
+        readonly static List<ManageOffice> ManageOfficeList = new List<ManageOffice> {
+                new ManageOffice {Address = "徳島市", Office = 1},
+                new ManageOffice {Address = "鳴門市", Office = 2},
+                new ManageOffice {Address = "小松島市", Office = 1},
+                new ManageOffice {Address = "勝浦郡", Office = 1},
+                new ManageOffice {Address = "名東郡", Office = 1},
+                new ManageOffice {Address = "名西郡石井町", Office = 3},
+                new ManageOffice {Address = "名西郡神山町", Office = 1},
+                new ManageOffice {Address = "板野郡松茂町", Office = 2},
+                new ManageOffice {Address = "板野郡北島町", Office = 1},
+                new ManageOffice {Address = "板野郡藍住町", Office = 1},
+                new ManageOffice {Address = "板野郡板野町", Office = 2},
+                new ManageOffice {Address = "板野郡上板町", Office = 3},
+            };
+
+        public void GetStationInformations()
+        {
+
+            RainStationList rain = new RainStationList();
+            RiverStationList river = new RiverStationList();
+            DamStationList dam = new DamStationList();
             TideStationList tide = new TideStationList();
+            RoadStationList road = new RoadStationList();
 
             var sl = Observation.TgGetStream<StaionList>(StationUrl, 0);
             foreach (var om in sl.pom.pa.om)
@@ -29,23 +56,113 @@ namespace TKRain.Models
                 int ofc = om.ofc;
                 foreach (var o in om.obn)
                 {
-                    if (o.ikc == 12)
+                    double lat, lng;
+                    switch (o.ikc)
                     {
-                        double lat, lng;
-                        XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
-                        tide.Add(new TideStationInfo
-                        {
-                            ofc = ofc,
-                            obc = o.obc,
-                            obn = o.obn,
-                            obl = o.obl,
-                            lat = lat,
-                            lng = lng
-                        });
+                        case 1:
+                            XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
+                            rain.Add(new RainStationInfo
+                            {
+                                mo = GetManageOffice(ofc, o.obl),
+                                sc = ofc + "-" +o.obc,
+                                ofc = ofc,
+                                obc = o.obc,
+                                obn = o.obn,
+                                obl = o.obl,
+                                lat = lat,
+                                lng = lng
+                            });
+                            break;
+                        case 4:
+                            XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
+                            river.Add(new RiverStationInfo
+                            {
+                                mo = GetManageOffice(ofc, o.obl),
+                                sc = ofc + "-" + o.obc,
+                                ofc = ofc,
+                                obc = o.obc,
+                                obn = o.obn,
+                                obl = o.obl,
+                                rsn = o.rsn,
+                                rn = o.rn,
+                                gmax = o.gmax,
+                                gmin = o.gmin,
+                                spfw = o.spfw,
+                                cauw = o.cauw,
+                                spcw = o.spcw,
+                                danw = o.danw,
+                                plaw = o.plaw,
+                                lat = lat,
+                                lng = lng,
+                            });
+                            break;
+                        case 7:
+                            XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
+                            dam.Add(new DamStationInfo
+                            {
+                                mo = GetManageOffice(ofc, o.obl),
+                                sc = ofc + "-" + o.obc,
+                                ofc = ofc,
+                                obc = o.obc,
+                                obn = o.obn,
+                                obl = o.obl,
+                                rsn = o.rsn,
+                                rn = o.rn,
+                                gmax = o.gmax,
+                                gmin = o.gmin,
+                                lat = lat,
+                                lng = lng,
+                            });
+                            break;
+                        case 12:
+                            XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
+                            tide.Add(new TideStationInfo
+                            {
+                                mo = GetManageOffice(ofc, o.obl),
+                                sc = ofc + "-" + o.obc,
+                                ofc = ofc,
+                                obc = o.obc,
+                                obn = o.obn,
+                                obl = o.obl,
+                                lat = lat,
+                                lng = lng
+                            });
+                            break;
+                        case 302:
+                            XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
+                            road.Add(new RoadStationInfo
+                            {
+                                mo = GetManageOffice(ofc, o.obl),
+                                sc = ofc + "-" + o.obc,
+                                ofc = ofc,
+                                obc = o.obc,
+                                obn = o.obn,
+                                obl = o.obl,
+                                lat = lat,
+                                lng = lng
+                            });
+                            break;
                     }
                 }
             }
+            File.WriteAllText(Path.Combine("Config", "Rainfall.json"), JsonConvert.SerializeObject(rain));
+            File.WriteAllText(Path.Combine("Config", "RiverLevel.json"), JsonConvert.SerializeObject(river));
+            File.WriteAllText(Path.Combine("Config", "DamInfo.json"), JsonConvert.SerializeObject(dam));
             File.WriteAllText(Path.Combine("Config", "TideLevel.json"), JsonConvert.SerializeObject(tide));
+            File.WriteAllText(Path.Combine("Config", "RoadWeather.json"), JsonConvert.SerializeObject(road));
+        }
+
+        private static int GetManageOffice(int ofc, string address)
+        {
+            if (ofc > 2)
+                return ofc;
+            foreach(var ma in ManageOfficeList)
+            {
+                if (address.StartsWith(ma.Address))
+                    return ma.Office;
+            }
+            LoggerClass.NLogInfo("想定外の所在地がありました。所在地: " + address);
+            return ofc;
         }
     }
 
@@ -71,6 +188,50 @@ namespace TKRain.Models
 
     public class RainStationList : List<RainStationInfo> { }
     public class RainStationInfo : StationInfo
+    {
+        /// 所在地
+        public string obl { get; set; }
+    }
+    public class RiverStationList : List<RiverStationInfo> { }
+    public class RiverStationInfo : StationInfo
+    {
+        /// 所在地
+        public string obl { get; set; }
+        /// 水系
+        public string rsn { get; set; }
+        /// 河川名
+        public string rn { get; set; }
+        /// グラフ最大値
+        public string gmax { get; set; }
+        /// グラフ最小値
+        public string gmin { get; set; }
+        /// 計画高水位
+        public string spfw { get; set; }
+        /// はん濫危険水位
+        public string cauw { get; set; }
+        /// 避難判断水位
+        public string spcw { get; set; }
+        /// はん濫注意水位
+        public string danw { get; set; }
+        /// 水防団待機水位
+        public string plaw { get; set; }
+    }
+    public class DamStationList : List<DamStationInfo> { }
+    public class DamStationInfo : StationInfo
+    {
+        /// 所在地
+        public string obl { get; set; }
+        /// 水系
+        public string rsn { get; set; }
+        /// 河川名
+        public string rn { get; set; }
+        /// グラフ最大値
+        public string gmax { get; set; }
+        /// グラフ最小値
+        public string gmin { get; set; }
+    }
+    public class RoadStationList : List<RoadStationInfo> { }
+    public class RoadStationInfo : StationInfo
     {
         /// 所在地
         public string obl { get; set; }

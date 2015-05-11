@@ -16,14 +16,14 @@ using System.Xml.Serialization;
 
 namespace TKRain.Models
 {
-    class RiverLebel
+    class RiverLevel
     {
         private StationInfoList stationInfoList;
         const string RiverLevelUrl = "http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00004.xml";
         const string RiverLevelStationsUrl = "http://www1.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_4.xml";
         const int SeriesNumber = 300;
 
-        public RiverLebel()
+        public RiverLevel()
         {
             string path = Path.Combine("Config", "RiverLebelStations.json");
             if (File.Exists(path))
@@ -203,6 +203,58 @@ namespace TKRain.Models
             File.WriteAllText(Path.Combine("data", "RiverLevelObservationTime.text"), observationDateTime.ToString());
             return number;
         }
+
+        //累積データの観測所情報の更新
+        public void SetRiverInfo()
+        {
+
+            RiverDocd data = Observation.TgGetStream<RiverDocd>(RiverLevelUrl, 0);
+            if (data == null)
+                return;
+
+            string j = File.ReadAllText(Path.Combine("Data", "Config", "RiverInfo.json"));
+            RiverStationList stationInfoList = JsonConvert.DeserializeObject<RiverStationList>(j);
+
+            //累積データヘッダー部分の修正
+            foreach (var oi in data.oi)
+            {
+                try
+                {
+                    RiverSeries rs;
+                    string sc = oi.ofc + "-" + oi.obc;
+                    string path = Path.Combine("Data", "River", sc + ".json");
+                    if (File.Exists(path))
+                    {
+                        string json = File.ReadAllText(path);
+                        rs = JsonConvert.DeserializeObject<RiverSeries>(json);
+
+                        var si = stationInfoList.Find(x => x.sc == sc);
+                        if (si == null)
+                        {
+                            LoggerClass.NLogInfo("該当の観測所情報がない 観測所: " + oi.obn);
+                            continue;
+                        }
+                        rs.mo = si.mo;
+                        rs.sc = si.sc;
+                        rs.ofc = si.ofc;
+                        rs.obc = si.obc;
+                        rs.obn = si.obn;
+                        rs.lat = si.lat;
+                        rs.lng = si.lng;
+                        rs.obl = si.obl;
+                        rs.rsn = si.rsn;
+                        rs.rn = si.rn;
+                        rs.gmax = si.gmax;
+                        rs.gmin = si.gmin;
+                        File.WriteAllText(path, JsonConvert.SerializeObject(rs));
+                    }
+                }
+                catch (Exception e1)
+                {
+                    LoggerClass.NLogInfo("水位観測所情報修正エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
+                }
+            }
+        }
     }
 
 
@@ -246,9 +298,13 @@ namespace TKRain.Models
 
     public class RiverSeries
     {
+        /// 管理事務所コード
+        public int mo { get; set; }
+        /// 観測局コード
+        public string sc { get; set; }
         /// 事務所コード
         public int ofc { get; set; }
-        /// 観測局コード
+        /// 観測局番号
         public int obc { get; set; }
         /// 観測局名称
         public string obn { get; set; }
@@ -262,7 +318,20 @@ namespace TKRain.Models
         public double? cauw { get; set; }
         /// 計画高水位
         public double? spfw { get; set; }
-        // 観測時間
+        /// 緯度
+        public double lat { get; set; }
+        /// 経度
+        public double lng { get; set; }
+        /// 所在地
+        public string obl { get; set; }
+        /// 水系
+        public string rsn { get; set; }
+        /// 河川名
+        public string rn { get; set; }
+        /// グラフ最大値
+        public string gmax { get; set; }
+        /// グラフ最小値
+        public string gmin { get; set; }        // 観測時間
         public DateTime[] ot { get; set; }
         // 水位
         public double?[] d10_val { get; set; }

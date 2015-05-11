@@ -18,21 +18,23 @@ namespace TKRain
     {
         static void Main(string[] args)
         {
-            LoggerClass.NLogInfo("処理開始");
             string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             Directory.SetCurrentDirectory(path);
-            if (!Directory.Exists(Path.Combine("Data", "Rain")))
-                Directory.CreateDirectory(Path.Combine("Data", "Rain"));
-            if (!Directory.Exists(Path.Combine("Data", "River")))
-                Directory.CreateDirectory(Path.Combine("Data", "River"));
-            if (!Directory.Exists(Path.Combine("Data", "Road")))
-                Directory.CreateDirectory(Path.Combine("Data", "Road"));
-            if (!Directory.Exists(Path.Combine("Data", "Dam")))
-                Directory.CreateDirectory(Path.Combine("Data", "Dam"));
-            if (!Directory.Exists(Path.Combine("Data", "Tide")))
-                Directory.CreateDirectory(Path.Combine("Data", "Tide"));
-            if (!Directory.Exists("Config"))
-                Directory.CreateDirectory("Config");
+            if (args.Length > 0)
+            {
+                foreach(string s in args)
+                {
+                    if( s== "/s")
+                    {
+                        Observation.SetupIni();
+                        Stations stations = new Stations();
+                        stations.GetStationInformations();
+                        LoggerClass.NLogInfo("/s 処理終了");
+                        return;
+                    }
+                }
+            }
+            LoggerClass.NLogInfo("処理開始");
 
             Observation.ObservationIni();
             List<Task> ObsTask = new List<Task>();
@@ -61,7 +63,7 @@ namespace TKRain
             {
                 if (Observation.IsUpdateRequired("RiverLevelObservationTime.text", out prevObservationTime))
                 {
-                    var riverLevel = new RiverLebel();
+                    var riverLevel = new RiverLevel();
                     int number = riverLevel.GetRiverLevelData(prevObservationTime);
                     if (number > 0)
                     {

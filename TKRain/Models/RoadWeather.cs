@@ -209,6 +209,55 @@ namespace TKRain.Models
             File.WriteAllText(Path.Combine("Data", "RoadWeatherObservationTime.text"), observationDateTime.ToString());
             return number;
         }
+
+        //累積データの観測所情報の更新
+        public void SetRoadInfo()
+        {
+
+            RoadDocd data = Observation.TgGetStream<RoadDocd>(RoadWeatherUrl, 0);
+            if (data == null)
+                return;
+
+            string j = File.ReadAllText(Path.Combine("Data", "Config", "RoadWeather.json"));
+            RoadStationList stationInfoList = JsonConvert.DeserializeObject<RoadStationList>(j);
+
+            //累積データヘッダー部分の修正
+            foreach (var oi in data.oi)
+            {
+                try
+                {
+                    RoadSeries rs;
+                    string sc = oi.ofc + "-" + oi.obc;
+                    string path = Path.Combine("Data", "Road", sc + ".json");
+                    if (File.Exists(path))
+                    {
+                        string json = File.ReadAllText(path);
+                        rs = JsonConvert.DeserializeObject<RoadSeries>(json);
+
+                        var si = stationInfoList.Find(x => x.sc == sc);
+                        if (si == null)
+                        {
+                            LoggerClass.NLogInfo("該当の観測所情報がない 観測所: " + oi.obn);
+                            continue;
+                        }
+
+                        rs.mo = si.mo;
+                        rs.sc = si.sc;
+                        rs.ofc = si.ofc;
+                        rs.obc = si.obc;
+                        rs.obn = si.obn;
+                        rs.lat = si.lat;
+                        rs.lng = si.lng;
+                        rs.obl = si.obl;
+                        File.WriteAllText(path, JsonConvert.SerializeObject(rs));
+                    }
+                }
+                catch (Exception e1)
+                {
+                    LoggerClass.NLogInfo("雨量観測所情報修正エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
+                }
+            }
+        }
     }
 
     public class RoadDataList
@@ -248,12 +297,22 @@ namespace TKRain.Models
 
     public class RoadSeries
     {
+        /// 管理事務所コード
+        public int mo { get; set; }
+        /// 観測局コード
+        public string sc { get; set; }
         /// 事務所コード
         public int ofc { get; set; }
-        /// 観測局コード
+        /// 観測局番号
         public int obc { get; set; }
         /// 観測局名称
         public string obn { get; set; }
+        /// 緯度
+        public double lat { get; set; }
+        /// 経度
+        public double lng { get; set; }
+        /// 所在地
+        public string obl { get; set; }
         // 観測時間
         public DateTime[] ot { get; set; }
         // 気温
