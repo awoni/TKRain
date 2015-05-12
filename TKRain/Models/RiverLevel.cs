@@ -47,6 +47,12 @@ namespace TKRain.Models
                 hr = new List<RiverData>()
             };
 
+            RiverGeoJson geojson = new RiverGeoJson
+            {
+                type = "FeatureCollection",
+                features = new List<RiverFeature>()
+            };
+
             //累積データの修正
             foreach (var oi in data.oi)
             {
@@ -160,6 +166,28 @@ namespace TKRain.Models
                         dt = rs.ot[sn]
                     });
 
+                    geojson.features.Add(new RiverFeature
+                    {
+                        type = "Feature",
+                        geometry = new Geometry
+                        {
+                            type = "Point",
+                            coordinates = new double[] { rs.lng, rs.lat }
+                        },
+                        properties = new RiverProperties
+                        {
+                            観測所 = oi.obn,
+                            水位 = rs.d10_val[sn],
+                            計画高水位 = plaw,
+                            はん濫危険水位 = danw,
+                            避難判断水位 = spcw,
+                            はん濫注意水位 = cauw,
+                            水防団待機水位 = spfw,
+                            観測時間 = rs.ot[sn],
+                            コード = sc
+                        }
+                    });
+
                     oi.lat = rs.lat;
                     oi.lng = rs.lng;
 
@@ -172,8 +200,9 @@ namespace TKRain.Models
                 }
             }
             File.WriteAllText(Path.Combine("Data", "River", "RiverData.json"), JsonConvert.SerializeObject(riverDataList));
-            Observation.SaveToXml(Path.Combine("Data", "River", "RiverLebel.xml"), data, 0);
-            File.WriteAllText(Path.Combine("Data", "River", "RiverLebel.json"), JsonConvert.SerializeObject(data));
+            Observation.SaveToXml(Path.Combine("Data", "River", "RiverLevel.xml"), data, 0);
+            File.WriteAllText(Path.Combine("Data", "River", "RiverLevel.json"), JsonConvert.SerializeObject(data));
+            File.WriteAllText(Path.Combine("Data", "River", "RiverLevel.geojson"), JsonConvert.SerializeObject(geojson));
 
             File.WriteAllText(Path.Combine("data", "RiverLevelObservationTime.text"), observationDateTime.ToString());
             return number;
@@ -368,5 +397,31 @@ namespace TKRain.Models
     public class Riverod : od
     {
         public string chg { get; set; }
+    }
+
+    public class RiverGeoJson
+    {
+        public string type { get; set; }
+        public List<RiverFeature> features { get; set; }
+    }
+
+    public class RiverFeature
+    {
+        public string type { get; set; }
+        public Geometry geometry { get; set; }
+        public RiverProperties properties { get; set; }
+    }
+
+    public class RiverProperties
+    {
+        public string 観測所 { get; set; }
+        public double? 水位 { get; set; }
+        public double? 計画高水位 { get; set; }
+        public double? はん濫危険水位 { get; set; }
+        public double? 避難判断水位 { get; set; }
+        public double? はん濫注意水位 { get; set; }
+        public double? 水防団待機水位 { get; set; }
+        public DateTime 観測時間 { get; set; }
+        public string コード { get; set; }
     }
 }

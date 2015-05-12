@@ -66,7 +66,7 @@ namespace TKRain.Models
                     switch (o.ikc)
                     {
                         case 1:
-                            XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
+                            XyToBl.Calcurate(4, double.Parse(o.yc), double.Parse(o.xc),  out lat, out lng);
                             mo = GetManageOffice(ofc, o.obl, out obl, o.ikc + ":" + o.obn);
                             rain.Add(new RainStationInfo
                             {
@@ -81,7 +81,7 @@ namespace TKRain.Models
                             });
                             break;
                         case 4:
-                            XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
+                            XyToBl.Calcurate(4, double.Parse(o.yc), double.Parse(o.xc), out lat, out lng);
                             mo = GetManageOffice(ofc, o.obl, out obl, o.ikc + ":" + o.obn);
                             river.Add(new RiverStationInfo
                             {
@@ -105,7 +105,7 @@ namespace TKRain.Models
                             });
                             break;
                         case 7:
-                            XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
+                            XyToBl.Calcurate(4, double.Parse(o.yc), double.Parse(o.xc), out lat, out lng);
                             mo = GetManageOffice(ofc, o.obl, out obl, o.ikc + ":" + o.obn);
                             dam.Add(new DamStationInfo
                             {
@@ -124,7 +124,7 @@ namespace TKRain.Models
                             });
                             break;
                         case 12:
-                            XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
+                            XyToBl.Calcurate(4, double.Parse(o.yc), double.Parse(o.xc), out lat, out lng);
                             mo = GetManageOffice(ofc, o.obl, out obl, o.ikc + ":" + o.obn);
                             tide.Add(new TideStationInfo
                             {
@@ -139,7 +139,7 @@ namespace TKRain.Models
                             });
                             break;
                         case 302:
-                            XyToBl.Calcurate(4, double.Parse(o.xc), double.Parse(o.yc), out lat, out lng);
+                            XyToBl.Calcurate(4, double.Parse(o.yc), double.Parse(o.xc), out lat, out lng);
                             mo = GetManageOffice(ofc, o.obl, out obl, o.ikc + ":" + o.obn);
                             road.Add(new RoadStationInfo
                             {

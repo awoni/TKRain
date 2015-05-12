@@ -31,6 +31,8 @@ interface TideSeries {
     sc: string
         /// 観測局名称
     obn: string
+    /// 所在地
+    obl: string
         // 観測時間
     ot: string[]
         // 潮位
@@ -90,7 +92,8 @@ function tideGetDetail(place: string)
 
 function tideDetailTable(data: TideSeries, url: string) {
     document.getElementById("place0").innerHTML = data.obn;
-    var out = "<table class='table table-bordered'>";
+    var out = "<p>所在地; " + data.obl + "</p>";
+    out += "<table class='table table-bordered'>";
     out += "<tr><th>観測時間</th><th>潮位</th></tr>";
     var i;
     for (i = data.ot.length - 144; i < data.ot.length; i++) {

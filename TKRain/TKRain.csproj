@@ -114,6 +114,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Sample\Rainfall.geojson" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

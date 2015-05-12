@@ -44,7 +44,8 @@ function tideGetDetail(place) {
 }
 function tideDetailTable(data, url) {
     document.getElementById("place0").innerHTML = data.obn;
-    var out = "<table class='table table-bordered'>";
+    var out = "<p>所在地; " + data.obl + "</p>";
+    out += "<table class='table table-bordered'>";
     out += "<tr><th>観測時間</th><th>潮位</th></tr>";
     var i;
     for (i = data.ot.length - 144; i < data.ot.length; i++) {

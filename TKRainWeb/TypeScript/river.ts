@@ -9,20 +9,20 @@ interface RiverDataList {
 
 interface RiverData {
     /// 事務所コード
-    ofc: number
+    mo: number
     /// 観測局コード
-    obc: number
+    sc: string
     /// 観測局名称
     obn: string
-    /// 水防団待機水位
+    /// 計画高水位
     plaw; number
-    /// はん濫注意水位
+    /// はん濫危険水位
     danw: number
     /// 避難判断水位
     spcw: number
-     /// はん濫危険水位
+     /// はん濫注意水位
     cauw: number
-    /// 計画高水位
+    /// 水防団待機水位
     spfw: number
     /// 緯度
     lat: number
@@ -40,21 +40,27 @@ interface RiverData {
 
 interface RiverSeries {
     /// 事務所コード
-    ofc: number
+    mo: number
     /// 観測局コード
-    obc: number
+    sc: string
     /// 観測局名称
     obn: string
-    /// 通報水位
-    plaw; number
-    /// 警戒水位
-    danw: number
-    /// 特別警戒水位
-    spcw: number
-    /// 危険水位
-    cauw: number
+    /// 所在地
+    obl: string
     /// 計画高水位
+    plaw; number
+    /// はん濫危険水位
+    danw: number
+    /// 避難判断水位
+    spcw: number
+    /// はん濫注意水位
+    cauw: number
+    /// 水防団待機水位
     spfw: number
+    /// 水系
+    rsn: string
+    /// 河川名
+    rn: string
     // 観測時間
     ot: string[]
     // 水位
@@ -92,7 +98,7 @@ function riverSummaryTable(data: RiverDataList) {
     for (i = 0; i < data.hr.length; i++) {
         out += '<tr><td>' + data.hr[i].obn + '</td><td>' + data.hr[i].d10_val + '</td><td>' + data.hr[i].d10_chg +
         '</td><td>' + data.hr[i].dt +
-        '</td><td><a href="RiverData.html?station=' + data.hr[i].ofc + '-' + data.hr[i].obc + '">リンク</a></td></tr>';
+        '</td><td><a href="RiverData.html?station=' + data.hr[i].sc + '">リンク</a></td></tr>';
     }
     out += "<table>";
     out += "<p>データ: " + riverUrl + "RiverData.json" + "</p>";
@@ -115,17 +121,18 @@ function riverGetDetail(place: string) {
 
 function riverDetailTable(data: RiverSeries, url: string) {
     document.getElementById("place0").innerHTML = data.obn;
-    var out = "";
-    if (data.plaw != null)
-        out += "<p>水防団待機水位: " + data.plaw + "m</p>"
-    if (data.danw != null)
-        out += "<p>はん濫注意水位: " + data.danw + "m</p>"
+    var out = "<p>" + data.rsn + " " + data.rn + "</p>";
+    out += "<p>所在地; " + data.obl + "</p>";
+    if (data.spfw != null)
+        out += "<p>水防団待機水位: " + data.spfw + "m</p>"
+    if (data.cauw != null)
+        out += "<p>はん濫注意水位: " + data.cauw + "m</p>"
     if (data.spcw != null)
         out += "<p>避難判断水位: " + data.spcw + "m</p>"
-    if (data.cauw != null)
-        out += "<p>はん濫危険水位: " + data.cauw + "m</p>"
-    if (data.spfw != null)
-        out += "<p>計画高水位: " + data.spfw + "m</p>"
+    if (data.danw != null)
+        out += "<p>はん濫危険水位: " + data.danw + "m</p>"
+    if (data.plaw != null)
+        out += "<p>計画高水位: " + data.plaw + "m</p>"
     out += "<table class='table table-bordered'>";
     out += "<tr><th>観測時間</th><th>水位</th><th>ステータス</th></tr>";
     var i;

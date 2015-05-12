@@ -48,6 +48,12 @@ namespace TKRain.Models
                 hr = new List<RoadData>()
             };
 
+            RoadGeoJson geojson = new RoadGeoJson
+            {
+                type = "FeatureCollection",
+                features = new List<RoadFeature>()
+            };
+
             //累積データを修正
             foreach (var oi in data.oi)
             {
@@ -126,22 +132,15 @@ namespace TKRain.Models
                             rs.d10070_si[n] = -1;
                     }
 
-                    rs.ot[SeriesNumber - 1] = doidt;
-                    double dresult;
-                    if (double.TryParse(oi.odd.wd.d10030_10m.ov, out dresult))
-                        rs.d10030_val[SeriesNumber - 1] = dresult;
-                    else
-                        rs.d10030_val[SeriesNumber - 1] = null;
-                    rs.d10030_si[SeriesNumber - 1] = oi.odd.wd.d10030_10m.osi;
-                    int result;
-                    if (int.TryParse(oi.odd.wd.d10060_10m.ov, out result))
-                        rs.d10060_val[SeriesNumber - 1] = result;
-                    else
-                        rs.d10060_val[SeriesNumber - 1] = null;
-                    rs.d10060_si[SeriesNumber - 1] = oi.odd.wd.d10060_10m.osi;
+                    int sn = SeriesNumber - 1;
+                    rs.ot[sn] = doidt;
+                    rs.d10030_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.wd.d10030_10m.ov);
+                    rs.d10030_si[sn] = oi.odd.wd.d10030_10m.osi;
+                    rs.d10060_val[sn] = Observation.StringToInt(oi.odd.wd.d10060_10m.ov);
+                    rs.d10060_si[sn] = oi.odd.wd.d10060_10m.osi;
           
-                    rs.d10070_val[SeriesNumber - 1] = oi.odd.wd.d10070_10m.ov;
-                    rs.d10070_si[SeriesNumber - 1] = oi.odd.wd.d10070_10m.osi;
+                    rs.d10070_val[sn] = oi.odd.wd.d10070_10m.ov;
+                    rs.d10070_si[sn] = oi.odd.wd.d10070_10m.osi;
 
                     roadDataList.hr.Add(new RoadData
                     {
@@ -150,13 +149,32 @@ namespace TKRain.Models
                         obn = oi.obn,
                         lat = rs.lat,
                         lng = rs.lng,
-                        d10030_val = rs.d10030_val[SeriesNumber - 1],
-                        d10030_si = rs.d10030_si[SeriesNumber - 1],
-                        d10060_val = rs.d10060_val[SeriesNumber - 1],
-                        d10060_si = rs.d10060_si[SeriesNumber - 1],
-                        d10070_val = rs.d10070_val[SeriesNumber - 1],
-                        d10070_si = rs.d10070_si[SeriesNumber - 1],
+                        d10030_val = rs.d10030_val[sn],
+                        d10030_si = rs.d10030_si[sn],
+                        d10060_val = rs.d10060_val[sn],
+                        d10060_si = rs.d10060_si[sn],
+                        d10070_val = rs.d10070_val[sn],
+                        d10070_si = rs.d10070_si[sn],
                         dt = doidt
+                    });
+
+                    geojson.features.Add(new RoadFeature
+                    {
+                        type = "Feature",
+                        geometry = new Geometry
+                        {
+                            type = "Point",
+                            coordinates = new double[] { rs.lng, rs.lat }
+                        },
+                        properties = new RoadProperties
+                        {
+                            観測所 = oi.obn,
+                            気温 = rs.d10030_val[sn],
+                            風速 = rs.d10060_val[sn],
+                            風向 = rs.d10070_val[sn],
+                            観測時間 = doidt,
+                            コード = sc
+                        }
                     });
 
                     oi.lat = rs.lat;
@@ -173,6 +191,7 @@ namespace TKRain.Models
             File.WriteAllText(Path.Combine("Data", "Road", "RoadData.json"), JsonConvert.SerializeObject(roadDataList));
             Observation.SaveToXml(Path.Combine("Data", "Road", "RoadWeather.xml"), data, 0);
             File.WriteAllText(Path.Combine("Data", "Road", "RoadWeather.json"), JsonConvert.SerializeObject(data));
+            File.WriteAllText(Path.Combine("Data", "Road", "RoadWeather.geojson"), JsonConvert.SerializeObject(geojson));
             File.WriteAllText(Path.Combine("Data", "RoadWeatherObservationTime.text"), observationDateTime.ToString());
             return number;
         }
@@ -348,5 +367,30 @@ namespace TKRain.Models
         /// 時間風向
         public od d10070_1h { get; set; }
     }
+
+
+    public class RoadGeoJson
+    {
+        public string type { get; set; }
+        public List<RoadFeature> features { get; set; }
+    }
+
+    public class RoadFeature
+    {
+        public string type { get; set; }
+        public Geometry geometry { get; set; }
+        public RoadProperties properties { get; set; }
+    }
+
+    public class RoadProperties
+    {
+        public string 観測所 { get; set; }
+        public double? 気温 { get; set; }
+        public int? 風速 { get; set; }
+        public string 風向 { get; set; }
+        public DateTime 観測時間 { get; set; }
+        public string コード { get; set; }
+    }
+
 }
 

@@ -35,11 +35,11 @@ namespace TKRain.Models
                 return 0;
 
             string observationTime = data.oi[0].odd.rd.d10_10m.ot;
-            DateTime observationDateTime = observationTime.EndsWith("24:00")?
+            DateTime observationDateTime = observationTime.EndsWith("24:00") ?
                 DateTime.Parse(observationTime.Substring(0, observationTime.Length - 6)).AddDays(1)
                 : DateTime.Parse(observationTime);
 
-           if (observationDateTime <= prevObservationTime)
+            if (observationDateTime <= prevObservationTime)
                 return 0;
 
             HourRainList hourRainList = new HourRainList
@@ -47,10 +47,17 @@ namespace TKRain.Models
                 dt = observationDateTime,
                 hr = new List<HourRain>(),
             };
+
+            RainGeoJson geojson = new RainGeoJson {
+                type = "FeatureCollection",
+                features = new List<RainFeature>()
+            };
+
             //累積データの修正
             foreach (var oi in data.oi)
             {
-                try {
+                try
+                {
                     DateTime doidt = observationDateTime;
                     if (observationTime != oi.odd.rd.d10_10m.ot)
                     {
@@ -126,7 +133,7 @@ namespace TKRain.Models
                     rs.ot[SeriesNumber - 1] = doidt;
                     rs.d10_10m_val[SeriesNumber - 1] = Observation.StringToInt(oi.odd.rd.d10_10m.ov);
                     rs.d10_10m_si[SeriesNumber - 1] = oi.odd.rd.d10_10m.osi;
-                    rs.d70_10m_val[SeriesNumber - 1] = Observation.StringToInt(oi.odd.rd.d70_10m.ov); 
+                    rs.d70_10m_val[SeriesNumber - 1] = Observation.StringToInt(oi.odd.rd.d70_10m.ov);
                     rs.d70_10m_si[SeriesNumber - 1] = oi.odd.rd.d70_10m.osi;
 
                     //10分毎の時間雨量の計算
@@ -135,19 +142,19 @@ namespace TKRain.Models
                         rs.d10_1h_val[SeriesNumber - 1] = null;
                         rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 1];
                     }
-                    else if(rs.d70_10m_val[SeriesNumber - 1] == 0)
+                    else if (rs.d70_10m_val[SeriesNumber - 1] == 0)
                     {
                         rs.d10_1h_val[SeriesNumber - 1] = 0;
                         rs.d10_1h_si[SeriesNumber - 1] = 0;
                     }
-                    else if(rs.d70_10m_si[SeriesNumber - 7] == 0)
+                    else if (rs.d70_10m_si[SeriesNumber - 7] == 0)
                     {
                         rs.d10_1h_val[SeriesNumber - 1] = rs.d70_10m_val[SeriesNumber - 1] - rs.d70_10m_val[SeriesNumber - 7];
                         if (rs.d10_1h_val[SeriesNumber - 1] < 0)
                             rs.d10_1h_val[SeriesNumber - 1] = 0;
                         rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 7];
                     }
-                    else if(doidt.Minute == 0 && oi.odd.rd.d30_1h.osi == 0)
+                    else if (doidt.Minute == 0 && oi.odd.rd.d30_1h.osi == 0)
                     {
                         rs.d10_1h_val[SeriesNumber - 1] = Observation.StringToInt(oi.odd.rd.d30_1h.ov);
                         rs.d10_1h_si[SeriesNumber - 1] = 0;
@@ -167,9 +174,9 @@ namespace TKRain.Models
                     int nhour = doidt.Minute / 10;
                     bool flag = false;
 
-                    for(; sn > SeriesNumber - 2 - nhour; sn--)
+                    for (; sn > SeriesNumber - 2 - nhour; sn--)
                     {
-                        if (rs.d70_10m_si[sn] == 0)
+                        if (rs.d10_1h_si[sn] == 0)
                         {
                             flag = true;
                             break; ;
@@ -179,7 +186,8 @@ namespace TKRain.Models
                     if (!flag)
                         sn = SeriesNumber - 1;
 
-                    hourRainList.hr.Add(new HourRain {
+                    hourRainList.hr.Add(new HourRain
+                    {
                         mo = rs.mo,
                         sc = sc,
                         obn = oi.obn,
@@ -192,22 +200,39 @@ namespace TKRain.Models
                         dt = rs.ot[sn]
                     });
 
+                    geojson.features.Add(new RainFeature {
+                        type = "Feature",
+                        geometry = new Geometry {
+                            type = "Point",
+                            coordinates = new double[]{rs.lng, rs.lat}
+                        },
+                        properties = new RainProperties
+                        {
+                            観測所 = oi.obn,
+                            時間雨量 = rs.d10_1h_val[sn],
+                            累計雨量 = rs.d70_10m_val[sn],
+                            観測時間 = rs.ot[sn],
+                            コード = sc
+                        }
+                    });
+
                     oi.lat = rs.lat;
                     oi.lng = rs.lng;
 
                     File.WriteAllText(path, JsonConvert.SerializeObject(rs));
                     number++;
                 }
-                catch(Exception e1)
+                catch (Exception e1)
                 {
-                    LoggerClass.NLogInfo("雨量累積データ作成エラー 観測所: " + oi.obn +" メッセージ: " + e1.Message);
+                    LoggerClass.NLogInfo("雨量累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
                 }
             }
             File.WriteAllText(Path.Combine("Data", "Rain", "RainData.json"), JsonConvert.SerializeObject(hourRainList));
             Observation.SaveToXml(Path.Combine("Data", "Rain", "Rainfall.xml"), data, 0);
             File.WriteAllText(Path.Combine("Data", "Rain", "Rainfall.json"), JsonConvert.SerializeObject(data));
+            File.WriteAllText(Path.Combine("Data", "Rain", "Rainfall.geojson"), JsonConvert.SerializeObject(geojson));
 
-            File.WriteAllText(Path.Combine("Data", "RainfallObservationTime.text"), observationDateTime.ToString());           
+            File.WriteAllText(Path.Combine("Data", "RainfallObservationTime.text"), observationDateTime.ToString());
             return number;
         }
 
@@ -236,7 +261,7 @@ namespace TKRain.Models
                         rs = JsonConvert.DeserializeObject<RainSeries>(json);
 
                         var si = stationInfoList.Find(x => x.sc == sc);
-                        if(si == null)
+                        if (si == null)
                         {
                             LoggerClass.NLogInfo("該当の観測所情報がない 観測所: " + oi.obn);
                             continue;
@@ -261,7 +286,7 @@ namespace TKRain.Models
     public class HourRainList
     {
         public DateTime dt { get; set; }
-        public List<HourRain> hr{ get; set; }
+        public List<HourRain> hr { get; set; }
     }
 
     public class HourRain
@@ -287,7 +312,7 @@ namespace TKRain.Models
         /// 観測時間
         public DateTime dt { get; set; }
     }
-    
+
 
     public class RainSeries
     {
@@ -366,5 +391,35 @@ namespace TKRain.Models
         /// １時間雨量
         public od d30_1h { get; set; }
     }
+
+
+    public class RainGeoJson
+    {
+        public string type { get; set; }
+        public List<RainFeature> features { get; set; }
+    }
+
+    public class RainFeature
+    {
+        public string type { get; set; }
+        public Geometry geometry { get; set; }
+        public RainProperties properties { get; set; }
+    }
+
+    public class Geometry
+    {
+        public string type { get; set; }
+        public double[] coordinates { get; set; }
+    }
+
+    public class RainProperties
+    {
+        public string 観測所 { get; set; }
+        public double? 時間雨量 { get; set; }
+        public double? 累計雨量 { get; set; }
+        public DateTime 観測時間 { get; set; }
+        public string コード { get; set; }
+    }
+
 }
 
