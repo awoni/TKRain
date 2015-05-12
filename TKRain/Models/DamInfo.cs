@@ -18,41 +18,11 @@ namespace TKRain.Models
 {
     class DamInfo
    {
-        private StationInfoList stationInfoList;
         const string DamInfoUrl = "http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00007.xml";
-        const string DamInfoStationsUrl = "http://www1.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_7.xml";
         const int SeriesNumber = 300;
 
         public DamInfo()
         {
-            string path = Path.Combine("Config", "DamInforStations.json");
-            if (File.Exists(path))
-            {
-                string json = File.ReadAllText(path);
-                this.stationInfoList = JsonConvert.DeserializeObject<StationInfoList>(json);
-                return;
-            }
-
-            SList sList = Observation.TgGetStream<SList>(DamInfoStationsUrl, 0);
-
-            stationInfoList = new StationInfoList();
-
-            foreach (var station in sList.Sym)
-            {
-                var ocb = station.Ocb.Split(',');
-                var pt = station.Pt.Split(',');
-                double lat, lng;
-                XyToBl.Calcurate(4, double.Parse(pt[0]), double.Parse(pt[1]), out lat, out lng);
-                stationInfoList.Add(new StationInfo
-                {
-                    ofc = int.Parse(ocb[0]),
-                    obc = int.Parse(ocb[1]),
-                    obn = station.Nm,
-                    lat = lat,
-                    lng = lng
-                });
-            }
-            File.WriteAllText(path, JsonConvert.SerializeObject(stationInfoList));
         }
 
         public int GetDamInfoData(DateTime prevObservationTime)
@@ -71,23 +41,13 @@ namespace TKRain.Models
             if (observationDateTime <= prevObservationTime)
                 return 0;
 
-            
-            foreach (var stationData in data.oi)
-            {
-                var station = stationInfoList.Find(x => x.ofc == stationData.ofc && x.obc == stationData.obc);
-                stationData.lat = station.lat;
-                stationData.lng = station.lng;
-            }
-            Observation.SaveToXml(Path.Combine("data", "dam", "DamInfo.xml"), data, 0);
-            File.WriteAllText(Path.Combine("data", "dam", "DamInfo.json"), JsonConvert.SerializeObject(data));
-
             DamDataList damDataList = new DamDataList
             {
                 dt = observationDateTime,
                 hr = new List<DamData>()
             };
 
-            //累積データを作成
+            //累積データの修正
             foreach (var oi in data.oi)
             {
                 try
@@ -102,11 +62,14 @@ namespace TKRain.Models
                     }
 
                     DamSeries rs;
-                    string path = Path.Combine("Data", "Dam", oi.ofc.ToString() + "-" + oi.obc.ToString() + ".json");
+                    string sc = oi.ofc + "-" + oi.obc;
+                    string path = Path.Combine("Data", "Dam", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);
                         rs = JsonConvert.DeserializeObject<DamSeries>(json);
+                        rs.obn = oi.obn;  //名称は毎回確認
+
                         DateTime rsdt = rs.ot[SeriesNumber - 1];
                         int nt = (int)((doidt - rsdt).Ticks / 6000000000);
                         for (int n = 0; n < SeriesNumber - nt; n++)
@@ -156,8 +119,8 @@ namespace TKRain.Models
                     {
                         rs = new DamSeries
                         {
-                            ofc = oi.ofc,
-                            obc = oi.obc,
+                            mo = oi.ofc,
+                            sc = sc,
                             obn = oi.obn,
                             ot = new DateTime[SeriesNumber],
                             d10_val = new double?[SeriesNumber],
@@ -268,11 +231,11 @@ namespace TKRain.Models
 
                     damDataList.hr.Add(new DamData
                     {
-                        ofc = oi.ofc,
-                        obc = oi.obc,
+                        mo = rs.mo,
+                        sc = sc,
                         obn = oi.obn,
-                        lat = oi.lat,
-                        lng = oi.lng,
+                        lat = rs.lat,
+                        lng = rs.lng,
                         d10_val = rs.d10_val[sn],
                         d10_si = rs.d10_si[sn],
                         d20_val = rs.d20_val[sn],
@@ -292,6 +255,9 @@ namespace TKRain.Models
                         dt = rs.ot[sn]
                     });
 
+                    oi.lat = rs.lat;
+                    oi.lng = rs.lng;
+
                     File.WriteAllText(path, JsonConvert.SerializeObject(rs));
                     number++;
                 }
@@ -301,6 +267,8 @@ namespace TKRain.Models
                 }
             }
             File.WriteAllText(Path.Combine("Data", "Dam", "DamData.json"), JsonConvert.SerializeObject(damDataList));
+            Observation.SaveToXml(Path.Combine("data", "dam", "DamInfo.xml"), data, 0);
+            File.WriteAllText(Path.Combine("data", "dam", "DamInfo.json"), JsonConvert.SerializeObject(data));
 
             File.WriteAllText(Path.Combine("data", "DamObservationTime.text"), observationDateTime.ToString());
             return number;
@@ -314,7 +282,7 @@ namespace TKRain.Models
             if (data == null)
                 return;
 
-            string j = File.ReadAllText(Path.Combine("Data", "Config", "DamInfo.json"));
+            string j = File.ReadAllText(Path.Combine("Config", "DamInfo.json"));
             DamStationList stationInfoList = JsonConvert.DeserializeObject<DamStationList>(j);
 
             //累積データヘッダー部分の修正
@@ -336,12 +304,8 @@ namespace TKRain.Models
                             LoggerClass.NLogInfo("該当の観測所情報がない 観測所: " + oi.obn);
                             continue;
                         }
-                        //rsn rn gmax gmin
                         rs.mo = si.mo;
                         rs.sc = si.sc;
-                        rs.ofc = si.ofc;
-                        rs.obc = si.obc;
-                        rs.obn = si.obn;
                         rs.lat = si.lat;
                         rs.lng = si.lng;
                         rs.obl = si.obl;
@@ -369,10 +333,10 @@ namespace TKRain.Models
 
     public class DamData
     {
-        /// 事務所コード
-        public int ofc { get; set; }
+        /// 管理事務所コード
+        public int mo { get; set; }
         /// 観測局コード
-        public int obc { get; set; }
+        public string sc { get; set; }
         /// 観測局名称
         public string obn { get; set; }
         /// 緯度
@@ -414,10 +378,6 @@ namespace TKRain.Models
         public int mo { get; set; }
         /// 観測局コード
         public string sc { get; set; }
-        /// 事務所コード
-        public int ofc { get; set; }
-        /// 観測局番号
-        public int obc { get; set; }
         /// 観測局名称
         public string obn { get; set; }
         /// 緯度

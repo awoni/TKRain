@@ -18,41 +18,11 @@ namespace TKRain.Models
 {
     class RiverLevel
     {
-        private StationInfoList stationInfoList;
         const string RiverLevelUrl = "http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00004.xml";
-        const string RiverLevelStationsUrl = "http://www1.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_4.xml";
         const int SeriesNumber = 300;
 
         public RiverLevel()
         {
-            string path = Path.Combine("Config", "RiverLebelStations.json");
-            if (File.Exists(path))
-            {
-                string json = File.ReadAllText(path);
-                this.stationInfoList = JsonConvert.DeserializeObject<StationInfoList>(json);
-                return;
-            }
-
-            SList sList = Observation.TgGetStream<SList>(RiverLevelStationsUrl, 0);
-
-            stationInfoList = new StationInfoList();
-
-            foreach (var station in sList.Sym)
-            {
-                var ocb = station.Ocb.Split(',');
-                var pt = station.Pt.Split(',');
-                double lat, lng;
-                XyToBl.Calcurate(4, double.Parse(pt[0]), double.Parse(pt[1]), out lat, out lng);
-                stationInfoList.Add(new StationInfo
-                {
-                    ofc = int.Parse(ocb[0]),
-                    obc = int.Parse(ocb[1]),
-                    obn = station.Nm,
-                    lat = lat,
-                    lng = lng
-                });
-            }
-            File.WriteAllText(path, JsonConvert.SerializeObject(stationInfoList));
         }
 
         public int GetRiverLevelData(DateTime prevObservationTime)
@@ -71,27 +41,17 @@ namespace TKRain.Models
             if (observationDateTime <= prevObservationTime)
                 return 0;
 
-            foreach (var stationData in data.oi)
-            {
-                var station = stationInfoList.Find(x => x.ofc == stationData.ofc && x.obc == stationData.obc);
-                stationData.lat = station.lat;
-                stationData.lng = station.lng;
-            }
-            Observation.SaveToXml(Path.Combine("Data", "River", "RiverLebel.xml"), data, 0);
-            File.WriteAllText(Path.Combine("Data", "River", "RiverLebel.json"), JsonConvert.SerializeObject(data));
-
             RiverDataList riverDataList = new RiverDataList
             {
                 dt = observationDateTime,
                 hr = new List<RiverData>()
             };
 
-            //累積データを作成
+            //累積データの修正
             foreach (var oi in data.oi)
             {
                 try
                 {
-                    /// ToDo 24:00 の例外処理が必要
                     DateTime doidt = observationDateTime;
                     if (observationTime != oi.odd.wd.d10_10m.ot)
                     {
@@ -102,11 +62,14 @@ namespace TKRain.Models
                     }
 
                     RiverSeries rs;
-                    string path = Path.Combine("Data", "River", oi.ofc + "-" + oi.obc + ".json");
+                    string sc = oi.ofc + "-" + oi.obc;
+                    string path = Path.Combine("Data", "River", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);
                         rs = JsonConvert.DeserializeObject<RiverSeries>(json);
+                        rs.obn = oi.obn;  //名称は毎回確認
+
                         DateTime rsdt = rs.ot[SeriesNumber - 1];
                         int nt = (int)((doidt - rsdt).Ticks / 6000000000);
                         for (int n = 0; n < SeriesNumber - nt; n++)
@@ -128,14 +91,9 @@ namespace TKRain.Models
                     {
                         rs = new RiverSeries
                         {
-                            ofc = oi.ofc,
-                            obc = oi.obc,
+                            mo = oi.ofc,
+                            sc = sc,
                             obn = oi.obn,
-                            plaw = Observation.StringToDouble(oi.plaw),
-                            danw = Observation.StringToDouble(oi.danw),
-                            spcw = Observation.StringToDouble(oi.spcw),
-                            cauw = Observation.StringToDouble(oi.cauw),
-                            spfw = Observation.StringToDouble(oi.spfw),
                             ot = new DateTime[SeriesNumber],
                             d10_val = new double?[SeriesNumber],
                             d10_si = new int[SeriesNumber],
@@ -150,9 +108,20 @@ namespace TKRain.Models
                             rs.d10_si[n] = -1;
                     }
 
+                    double? plaw = Observation.StringToDouble(oi.plaw);
+                    double? danw = Observation.StringToDouble(oi.danw);
+                    double? spcw = Observation.StringToDouble(oi.spcw);
+                    double? cauw = Observation.StringToDouble(oi.cauw);
+                    double? spfw = Observation.StringToDouble(oi.spfw);
+
                     rs.ot[SeriesNumber - 1] = doidt;
                     rs.d10_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.wd.d10_10m.ov);
                     rs.d10_si[SeriesNumber - 1] = oi.odd.wd.d10_10m.osi;
+                    rs.plaw = plaw;
+                    rs.danw = danw;
+                    rs.spcw = spcw;
+                    rs.cauw = cauw;
+                    rs.spfw = spfw;
 
                     //現況水位一覧の作成
                     //正時しかデータを収集していない観測局があるので、正時まで有効なデータがないか検索している
@@ -175,20 +144,24 @@ namespace TKRain.Models
 
                     riverDataList.hr.Add(new RiverData
                     {
-                        ofc = oi.ofc,
-                        obc = oi.obc,
+                        mo = rs.mo,
+                        sc = sc,
                         obn = oi.obn,
-                        plaw = Observation.StringToDouble(oi.plaw),
-                        danw = Observation.StringToDouble(oi.danw),
-                        spcw = Observation.StringToDouble(oi.spcw),
-                        cauw = Observation.StringToDouble(oi.cauw),
-                        spfw = Observation.StringToDouble(oi.spfw),
-                        lat = oi.lat,
-                        lng = oi.lng,
+                        plaw = plaw,
+                        danw = danw,
+                        spcw = spcw,
+                        cauw = cauw,
+                        spfw = spfw,
+                        lat = rs.lat,
+                        lng = rs.lng,
+                        rn = rs.rn,
                         d10_val = rs.d10_val[sn],
                         d10_si = rs.d10_si[sn],
                         dt = rs.ot[sn]
                     });
+
+                    oi.lat = rs.lat;
+                    oi.lng = rs.lng;
 
                     File.WriteAllText(path, JsonConvert.SerializeObject(rs));
                     number++;
@@ -199,6 +172,8 @@ namespace TKRain.Models
                 }
             }
             File.WriteAllText(Path.Combine("Data", "River", "RiverData.json"), JsonConvert.SerializeObject(riverDataList));
+            Observation.SaveToXml(Path.Combine("Data", "River", "RiverLebel.xml"), data, 0);
+            File.WriteAllText(Path.Combine("Data", "River", "RiverLebel.json"), JsonConvert.SerializeObject(data));
 
             File.WriteAllText(Path.Combine("data", "RiverLevelObservationTime.text"), observationDateTime.ToString());
             return number;
@@ -212,7 +187,7 @@ namespace TKRain.Models
             if (data == null)
                 return;
 
-            string j = File.ReadAllText(Path.Combine("Data", "Config", "RiverInfo.json"));
+            string j = File.ReadAllText(Path.Combine("Config", "RiverLevel.json"));
             RiverStationList stationInfoList = JsonConvert.DeserializeObject<RiverStationList>(j);
 
             //累積データヘッダー部分の修正
@@ -236,9 +211,6 @@ namespace TKRain.Models
                         }
                         rs.mo = si.mo;
                         rs.sc = si.sc;
-                        rs.ofc = si.ofc;
-                        rs.obc = si.obc;
-                        rs.obn = si.obn;
                         rs.lat = si.lat;
                         rs.lng = si.lng;
                         rs.obl = si.obl;
@@ -266,10 +238,10 @@ namespace TKRain.Models
 
     public class RiverData
     {
-        /// 事務所コード
-        public int ofc { get; set; }
+        /// 管理事務所コード
+        public int mo { get; set; }
         /// 観測局コード
-        public int obc { get; set; }
+        public string sc { get; set; }        
         /// 観測局名称
         public string obn { get; set; }
         /// 通報水位
@@ -286,6 +258,8 @@ namespace TKRain.Models
         public double lat { get; set; }
         /// 経度
         public double lng { get; set; }
+        /// 河川名
+        public string rn { get; set; }
         /// 水位
         public double? d10_val { get; set; }
         /// 水位ステータス
@@ -302,21 +276,17 @@ namespace TKRain.Models
         public int mo { get; set; }
         /// 観測局コード
         public string sc { get; set; }
-        /// 事務所コード
-        public int ofc { get; set; }
-        /// 観測局番号
-        public int obc { get; set; }
         /// 観測局名称
         public string obn { get; set; }
-        /// 通報水位
+        /// 計画高水位
         public double? plaw { get; set; }
-        /// 警戒水位
+        /// 危険水位
         public double? danw { get; set; }
         /// 特別警戒水位
         public double? spcw { get; set; }
-        /// 危険水位
+        /// 警戒水位
         public double? cauw { get; set; }
-        /// 計画高水位
+        /// 通報水位
         public double? spfw { get; set; }
         /// 緯度
         public double lat { get; set; }
@@ -360,15 +330,15 @@ namespace TKRain.Models
         public int obc { get; set; }
         /// 観測局名称
         public string obn { get; set; }
-        /// 通報水位
+        /// 計画高水位
         public string plaw { get; set; }
-        /// 警戒水位
+        /// 危険水位
         public string danw { get; set; }
         /// 特別警戒水位
         public string spcw { get; set; }
-        /// 危険水位
+        /// 警戒水位
         public string cauw { get; set; }
-        /// 計画高水位
+        /// 通報水位
         public string spfw { get; set; }
         /// 緯度
         public double lat { get; set; }

@@ -17,20 +17,11 @@ namespace TKRain.Models
     // http://www1.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_12.xml
     class TideLevel
     {
-        TideStationList stationInfoList;
         const string TideLevelUrl = "http://www1.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_12.xml";
         const int SeriesNumber = 3000;
 
         public TideLevel()
         {
-            string path = Path.Combine("Config", "TideLevel.json");
-            if (!File.Exists(path))
-            {
-                Stations stations = new Stations();
-                stations.GetStationInformations();
-            }
-            string json = File.ReadAllText(path);
-            this.stationInfoList = JsonConvert.DeserializeObject<TideStationList > (json);
         }
 
         public int GetTideLevelData(DateTime prevObservationTime)
@@ -55,7 +46,7 @@ namespace TKRain.Models
                 hr = new List<TideData>()
             };
          
-            //累積データを作成
+            //累積データの修正
             foreach (var oi in data.Sym)
             {
                 try
@@ -63,8 +54,6 @@ namespace TKRain.Models
                     string[] ocb = oi.Ocb.Split(',');
                     int mo = int.Parse(ocb[0]);
                     string sc = ocb[0] + "-" + ocb[1];
-              
-                    /// ToDo 24:00 の例外処理が必要
 
                     TideSeries ts;
                     string path = Path.Combine("Data", "Tide", sc + ".json");
@@ -72,7 +61,9 @@ namespace TKRain.Models
                     {
                         string json = File.ReadAllText(path);
                         ts = JsonConvert.DeserializeObject<TideSeries>(json);
-                        if(ts.ot.Length != SeriesNumber)
+                        ts.obn = oi.Nm;  //名称は毎回確認
+
+                        if (ts.ot.Length != SeriesNumber)
                         {
                             if(ts.ot.Length < SeriesNumber)
                             {
@@ -137,7 +128,8 @@ namespace TKRain.Models
                         mo = mo,
                         sc = sc,
                         obn = oi.Nm,
-                 
+                        lat = ts.lat,
+                        lng = ts.lng,
                         level = Observation.StringToDouble(slevel),
                         dt = observationDateTime
                     });
@@ -163,7 +155,7 @@ namespace TKRain.Models
             if (data == null)
                 return;
 
-            string j = File.ReadAllText(Path.Combine("Data", "Config", "TideLevel.json"));
+            string j = File.ReadAllText(Path.Combine("Config", "TideLevel.json"));
             TideStationList stationInfoList = JsonConvert.DeserializeObject<TideStationList>(j);
 
             //累積データヘッダー部分の修正
@@ -175,7 +167,7 @@ namespace TKRain.Models
                     string[] ocb = oi.Ocb.Split(',');
                     string sc = ocb[0] + "-" + ocb[1];
              
-                    string path = Path.Combine("Data", "Road", sc + ".json");
+                    string path = Path.Combine("Data", "Tide", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);
@@ -190,7 +182,6 @@ namespace TKRain.Models
 
                         rs.mo = si.mo;
                         rs.sc = si.sc;
-                        rs.obn = si.obn;
                         rs.lat = si.lat;
                         rs.lng = si.lng;
                         rs.obl = si.obl;

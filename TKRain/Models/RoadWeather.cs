@@ -19,41 +19,11 @@ namespace TKRain.Models
 {
     class RoadWeather
     {
-        private StationInfoList stationInfoList;
         const string RoadWeatherUrl = "http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00302.xml";
-        const string RoadWeatherStationsUrl = "http://www1.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_302.xml";
         const int SeriesNumber = 300;
 
         public RoadWeather()
         {
-            string path = Path.Combine("Config", "RoadWeatherStations.json");
-            if (File.Exists(path))
-            {
-                string json = File.ReadAllText(path);
-                this.stationInfoList = JsonConvert.DeserializeObject<StationInfoList>(json);
-                return;
-            }
-
-            SList sList = Observation.TgGetStream<SList>(RoadWeatherStationsUrl, 0);
-
-            stationInfoList = new StationInfoList();
-
-            foreach (var station in sList.Sym)
-            {
-                var ocb = station.Ocb.Split(',');
-                var pt = station.Pt.Split(',');
-                double lat, lng;
-                XyToBl.Calcurate(4, double.Parse(pt[0]), double.Parse(pt[1]), out lat, out lng);
-                stationInfoList.Add(new StationInfo
-                {
-                    ofc = int.Parse(ocb[0]),
-                    obc = int.Parse(ocb[1]),
-                    obn = station.Nm,
-                    lat = lat,
-                    lng = lng
-                });
-            }
-            File.WriteAllText(path, JsonConvert.SerializeObject(stationInfoList));
         }
 
         public int GetRoadWeatherData(DateTime prevObservationTime)
@@ -72,22 +42,13 @@ namespace TKRain.Models
             if (observationDateTime <= prevObservationTime)
                 return 0;
 
-            foreach (var stationData in data.oi)
-            {
-                var station = stationInfoList.Find(x => x.ofc == stationData.ofc && x.obc == stationData.obc);
-                stationData.lat = station.lat;
-                stationData.lng = station.lng;
-            }
-            Observation.SaveToXml(Path.Combine("Data", "Road", "RoadWeather.xml"), data, 0);
-            File.WriteAllText(Path.Combine("Data", "Road", "RoadWeather.json"), JsonConvert.SerializeObject(data));
-
 
             RoadDataList roadDataList = new RoadDataList {
                 dt = observationDateTime,
                 hr = new List<RoadData>()
             };
 
-            //累積データを作成
+            //累積データを修正
             foreach (var oi in data.oi)
             {
                 try
@@ -103,11 +64,14 @@ namespace TKRain.Models
                     }
 
                     RoadSeries rs;
-                    string path = Path.Combine("Data", "Road", oi.ofc + "-" + oi.obc + ".json");
+                    string sc = oi.ofc + "-" + oi.obc;
+                    string path = Path.Combine("Data", "Road", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);
                         rs = JsonConvert.DeserializeObject<RoadSeries>(json);
+                        rs.obn = oi.obn;  //名称は毎回確認
+
                         DateTime rsdt = rs.ot[SeriesNumber - 1];
                         int nt = (int)((doidt - rsdt).Ticks / 6000000000);
                         for (int n = 0; n < SeriesNumber - nt; n++)
@@ -137,8 +101,8 @@ namespace TKRain.Models
                     {
                         rs = new RoadSeries
                         {
-                            ofc = oi.ofc,
-                            obc = oi.obc,
+                            mo = oi.ofc,
+                            sc = sc,
                             obn = oi.obn,
                             ot = new DateTime[SeriesNumber],
                             d10030_val = new double?[SeriesNumber],
@@ -179,15 +143,13 @@ namespace TKRain.Models
                     rs.d10070_val[SeriesNumber - 1] = oi.odd.wd.d10070_10m.ov;
                     rs.d10070_si[SeriesNumber - 1] = oi.odd.wd.d10070_10m.osi;
 
-
-
                     roadDataList.hr.Add(new RoadData
                     {
-                        ofc = oi.ofc,
-                        obc = oi.obc,
+                        mo = rs.mo,
+                        sc = sc,
                         obn = oi.obn,
-                        lat = oi.lat,
-                        lng = oi.lng,
+                        lat = rs.lat,
+                        lng = rs.lng,
                         d10030_val = rs.d10030_val[SeriesNumber - 1],
                         d10030_si = rs.d10030_si[SeriesNumber - 1],
                         d10060_val = rs.d10060_val[SeriesNumber - 1],
@@ -196,6 +158,9 @@ namespace TKRain.Models
                         d10070_si = rs.d10070_si[SeriesNumber - 1],
                         dt = doidt
                     });
+
+                    oi.lat = rs.lat;
+                    oi.lng = rs.lng;
 
                     File.WriteAllText(path, JsonConvert.SerializeObject(rs));
                     number++;
@@ -206,6 +171,8 @@ namespace TKRain.Models
                 }
             }
             File.WriteAllText(Path.Combine("Data", "Road", "RoadData.json"), JsonConvert.SerializeObject(roadDataList));
+            Observation.SaveToXml(Path.Combine("Data", "Road", "RoadWeather.xml"), data, 0);
+            File.WriteAllText(Path.Combine("Data", "Road", "RoadWeather.json"), JsonConvert.SerializeObject(data));
             File.WriteAllText(Path.Combine("Data", "RoadWeatherObservationTime.text"), observationDateTime.ToString());
             return number;
         }
@@ -218,7 +185,7 @@ namespace TKRain.Models
             if (data == null)
                 return;
 
-            string j = File.ReadAllText(Path.Combine("Data", "Config", "RoadWeather.json"));
+            string j = File.ReadAllText(Path.Combine("Config", "RoadWeather.json"));
             RoadStationList stationInfoList = JsonConvert.DeserializeObject<RoadStationList>(j);
 
             //累積データヘッダー部分の修正
@@ -243,9 +210,6 @@ namespace TKRain.Models
 
                         rs.mo = si.mo;
                         rs.sc = si.sc;
-                        rs.ofc = si.ofc;
-                        rs.obc = si.obc;
-                        rs.obn = si.obn;
                         rs.lat = si.lat;
                         rs.lng = si.lng;
                         rs.obl = si.obl;
@@ -268,10 +232,10 @@ namespace TKRain.Models
 
     public class RoadData
     {
-        /// 事務所コード
-        public int ofc { get; set; }
+        /// 管理事務所コード
+        public int mo { get; set; }
         /// 観測局コード
-        public int obc { get; set; }
+        public string sc { get; set; }
         /// 観測局名称
         public string obn { get; set; }
         /// 緯度
@@ -301,10 +265,6 @@ namespace TKRain.Models
         public int mo { get; set; }
         /// 観測局コード
         public string sc { get; set; }
-        /// 事務所コード
-        public int ofc { get; set; }
-        /// 観測局番号
-        public int obc { get; set; }
         /// 観測局名称
         public string obn { get; set; }
         /// 緯度

@@ -186,6 +186,14 @@ namespace TKRain.Models
                 return d;
             return null;
         }
+
+        public static int? StringToInt(string s)
+        {
+            int result;
+            if (int.TryParse(s, out result))
+                return result;
+            return null;
+        }
     }
 
     /// 雨量状況図のデータ

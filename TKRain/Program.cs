@@ -24,12 +24,32 @@ namespace TKRain
             {
                 foreach(string s in args)
                 {
+                    //データの保存に必要なフォルダーの作成
+                    //観測所情報の取得
                     if( s== "/s")
                     {
                         Observation.SetupIni();
                         Stations stations = new Stations();
                         stations.GetStationInformations();
                         LoggerClass.NLogInfo("/s 処理終了");
+                        return;
+                    }
+                    
+                    //観測所データの書き込み
+                    //初期設定の場合は、パラメータなしで実行させて累積データを作成後に実行
+                    if (s == "/r")
+                    {
+                        var rainfall = new Rainfall();
+                        rainfall.SetRainInfo();
+                        var riverLevel = new RiverLevel();
+                        riverLevel.SetRiverInfo();
+                        var damInfo = new DamInfo();
+                        damInfo.SetDamInfo();
+                        var tideLevel = new TideLevel();
+                        tideLevel.SetTideInfo();
+                        var roadWeather = new RoadWeather();
+                        roadWeather.SetRoadInfo();
+                        LoggerClass.NLogInfo("/r 処理終了");
                         return;
                     }
                 }
