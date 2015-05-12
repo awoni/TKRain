@@ -115,6 +115,8 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Sample\Rainfall.geojson" />
+    <None Include="Sample\RiverLevel.geojson" />
+    <None Include="Sample\RoadWeather.geojson" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
