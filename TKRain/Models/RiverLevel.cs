@@ -84,6 +84,8 @@ namespace TKRain.Models
                             rs.d10_val[n] = rs.d10_val[n + nt];
                             rs.d10_si[n] = rs.d10_si[n + nt];
                         }
+                        if (nt > SeriesNumber)
+                            nt = SeriesNumber;
                         DateTime dt = doidt.AddMinutes(-10 * nt);
                         for (int n = SeriesNumber - nt; n < SeriesNumber - 1; n++)
                         {

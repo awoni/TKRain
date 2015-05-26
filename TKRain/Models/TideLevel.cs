@@ -92,6 +92,8 @@ namespace TKRain.Models
                             ts.ot[n] = ts.ot[n + nt];
                             ts.level[n] = ts.level[n + nt];
                         }
+                        if (nt > SeriesNumber)
+                            nt = SeriesNumber;
                         DateTime dt = observationDateTime.AddMinutes(-10 * nt);
                         for (int n = SeriesNumber - nt; n < SeriesNumber - 1; n++)
                         {

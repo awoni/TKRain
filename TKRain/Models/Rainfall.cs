@@ -22,11 +22,20 @@ namespace TKRain.Models
         const string RainfallUrl = "http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00001.xml";
         const int SeriesNumber = 300;
 
+        private Dictionary<string, string> WeathrDic = new Dictionary<string, string> {
+            { "1-14","1-1001" },  //徳島
+            { "3-6","3-1002" },  //蒲生田 
+            { "4-11","4-1003" },  //木頭
+            { "5-8","5-1004" },  //日和佐
+            { "7-2","7-1005" },  //穴吹
+            { "8-3","8-1006" },  //池田
+        };
+
         public Rainfall()
         {
         }
 
-        public int GetRainfallData(DateTime prevObservationTime)
+        public int GetRainfallData(DateTime prevObservationTime, List<WeatherRain> weatherRainList)
         {
             int number = 0;
 
@@ -88,6 +97,8 @@ namespace TKRain.Models
                             rs.d10_1h_val[n] = rs.d10_1h_val[n + nt];
                             rs.d10_1h_si[n] = rs.d10_1h_si[n + nt];
                         }
+                        if (nt > SeriesNumber)
+                            nt = SeriesNumber;
                         DateTime dt = doidt.AddMinutes(-10 * nt);
                         for (int n = SeriesNumber - nt; n < SeriesNumber - 1; n++)
                         {
@@ -130,46 +141,45 @@ namespace TKRain.Models
                             rs.d10_1h_si[n] = -1;
                     }
 
-                    rs.ot[SeriesNumber - 1] = doidt;
-                    rs.d10_10m_val[SeriesNumber - 1] = Observation.StringToInt(oi.odd.rd.d10_10m.ov);
-                    rs.d10_10m_si[SeriesNumber - 1] = oi.odd.rd.d10_10m.osi;
-                    rs.d70_10m_val[SeriesNumber - 1] = Observation.StringToInt(oi.odd.rd.d70_10m.ov);
-                    rs.d70_10m_si[SeriesNumber - 1] = oi.odd.rd.d70_10m.osi;
+                    int sn = SeriesNumber - 1;
+                    rs.ot[sn] = doidt;
+                    rs.d10_10m_val[sn] = Observation.StringToInt(oi.odd.rd.d10_10m.ov);
+                    rs.d10_10m_si[sn] = oi.odd.rd.d10_10m.osi;
+                    rs.d70_10m_val[sn] = Observation.StringToInt(oi.odd.rd.d70_10m.ov);
+                    rs.d70_10m_si[sn] = oi.odd.rd.d70_10m.osi;
 
                     //10分毎の時間雨量の計算
-                    if (rs.d70_10m_si[SeriesNumber - 1] != 0)
+                    if (rs.d70_10m_si[sn] != 0)
                     {
-                        rs.d10_1h_val[SeriesNumber - 1] = null;
-                        rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 1];
+                        rs.d10_1h_val[sn] = null;
+                        rs.d10_1h_si[sn] = rs.d70_10m_si[SeriesNumber - 1];
                     }
-                    else if (rs.d70_10m_val[SeriesNumber - 1] == 0)
+                    else if (rs.d70_10m_val[sn] == 0)
                     {
-                        rs.d10_1h_val[SeriesNumber - 1] = 0;
-                        rs.d10_1h_si[SeriesNumber - 1] = 0;
+                        rs.d10_1h_val[sn] = 0;
+                        rs.d10_1h_si[sn] = 0;
                     }
                     else if (rs.d70_10m_si[SeriesNumber - 7] == 0)
                     {
-                        rs.d10_1h_val[SeriesNumber - 1] = rs.d70_10m_val[SeriesNumber - 1] - rs.d70_10m_val[SeriesNumber - 7];
-                        if (rs.d10_1h_val[SeriesNumber - 1] < 0)
-                            rs.d10_1h_val[SeriesNumber - 1] = 0;
-                        rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 7];
+                        rs.d10_1h_val[sn] = rs.d70_10m_val[sn] - rs.d70_10m_val[SeriesNumber - 7];
+                        if (rs.d10_1h_val[sn] < 0)
+                            rs.d10_1h_val[sn] = 0;
+                        rs.d10_1h_si[sn] = rs.d70_10m_si[SeriesNumber - 7];
                     }
                     else if (doidt.Minute == 0 && oi.odd.rd.d30_1h.osi == 0)
                     {
-                        rs.d10_1h_val[SeriesNumber - 1] = Observation.StringToInt(oi.odd.rd.d30_1h.ov);
-                        rs.d10_1h_si[SeriesNumber - 1] = 0;
+                        rs.d10_1h_val[sn] = Observation.StringToInt(oi.odd.rd.d30_1h.ov);
+                        rs.d10_1h_si[sn] = 0;
                     }
                     else
                     {
-                        rs.d10_1h_val[SeriesNumber - 1] = null;
-                        rs.d10_1h_si[SeriesNumber - 1] = rs.d70_10m_si[SeriesNumber - 7];
+                        rs.d10_1h_val[sn] = null;
+                        rs.d10_1h_si[sn] = rs.d70_10m_si[SeriesNumber - 7];
                     }
 
 
                     //現況雨量一覧の作成
                     //正時しかデータを収集していない観測局があるので、正時まで有効なデータがないか検索している
-
-                    int sn = SeriesNumber - 1;
                     DateTime odt = rs.ot[sn];
                     int nhour = doidt.Minute / 10;
                     bool flag = false;
@@ -220,6 +230,21 @@ namespace TKRain.Models
                     oi.lng = rs.lng;
 
                     File.WriteAllText(path, JsonConvert.SerializeObject(rs));
+                    
+                    //道路気象で雨量データも表示するため
+                    if(WeathrDic.ContainsKey(sc))
+                    {
+                        weatherRainList.Add(new WeatherRain {
+                            sc = WeathrDic[sc],
+                            d10_10m_val = rs.d10_10m_val[SeriesNumber - 1],
+                            d10_10m_si = rs.d10_10m_si[SeriesNumber - 1],
+                            d10_1h_val = rs.d10_1h_val[SeriesNumber - 1],
+                            d10_1h_si = rs.d10_1h_si[SeriesNumber - 1],
+                            d70_10m_val = rs.d70_10m_val[SeriesNumber - 1],
+                            d70_10m_si = rs.d70_10m_si[SeriesNumber - 1],
+                            ot = rs.ot[SeriesNumber - 1]
+                        });
+                    }
                     number++;
                 }
                 catch (Exception e1)

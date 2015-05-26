@@ -44,6 +44,8 @@ namespace TKRain.Models
                 Directory.CreateDirectory(Path.Combine("Data", "River"));
             if (!Directory.Exists(Path.Combine("Data", "Road")))
                 Directory.CreateDirectory(Path.Combine("Data", "Road"));
+            if (!Directory.Exists(Path.Combine("Data", "Weather")))
+                Directory.CreateDirectory(Path.Combine("Data", "Weather"));
             if (!Directory.Exists(Path.Combine("Data", "Dam")))
                 Directory.CreateDirectory(Path.Combine("Data", "Dam"));
             if (!Directory.Exists(Path.Combine("Data", "Tide")))

@@ -14,6 +14,13 @@ using System.Xml;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
 
+//観測所
+//徳島 1-1001 1-14
+//蒲生田 3-1002 3-6
+//木頭 4-1003 4-11
+//日和佐 5-1004 5-8
+//穴吹 7-1005 7-2
+//池田 8-1006 8-3
 
 namespace TKRain.Models
 {
@@ -26,9 +33,10 @@ namespace TKRain.Models
         {
         }
 
-        public int GetRoadWeatherData(DateTime prevObservationTime)
+        public int GetRoadWeatherData(DateTime prevObservationTime, List<WeatherRain> weatherRainList, out bool dailyDataUpLoad)
         {
             int number = 0;
+            dailyDataUpLoad = false;
 
             RoadDocd data = Observation.TgGetStream<RoadDocd>(RoadWeatherUrl, 0);
             if (data == null)
@@ -41,7 +49,6 @@ namespace TKRain.Models
 
             if (observationDateTime <= prevObservationTime)
                 return 0;
-
 
             RoadDataList roadDataList = new RoadDataList {
                 dt = observationDateTime,
@@ -89,7 +96,15 @@ namespace TKRain.Models
                             rs.d10060_si[n] = rs.d10060_si[n + nt];
                             rs.d10070_val[n] = rs.d10070_val[n + nt];
                             rs.d10070_si[n] = rs.d10070_si[n + nt];
+                            rs.d10_10m_val[n] = rs.d10_10m_val[n + nt];
+                            rs.d10_10m_si[n] = rs.d10_10m_si[n + nt];
+                            rs.d10_1h_val[n] = rs.d10_1h_val[n + nt];
+                            rs.d10_1h_si[n] = rs.d10_1h_si[n + nt];
+                            rs.d70_10m_val[n] = rs.d70_10m_val[n + nt];
+                            rs.d70_10m_si[n] = rs.d70_10m_si[n + nt];
                         }
+                        if (nt > SeriesNumber)
+                            nt = SeriesNumber;
                         DateTime dt = doidt.AddMinutes(-10 * nt);
                         for (int n = SeriesNumber - nt; n < SeriesNumber - 1; n++)
                         {
@@ -101,6 +116,12 @@ namespace TKRain.Models
                             rs.d10060_si[n] = -1;
                             rs.d10070_val[n] = null;
                             rs.d10070_si[n] = -1;
+                            rs.d10_10m_val[n] = null;
+                            rs.d10_10m_si[n] = -1;
+                            rs.d10_1h_val[n] = null;
+                            rs.d10_1h_si[n] = -1;
+                            rs.d70_10m_val[n] = null;
+                            rs.d70_10m_si[n] = -1;
                         }
                     }
                     else
@@ -117,6 +138,12 @@ namespace TKRain.Models
                             d10060_si = new int[SeriesNumber],
                             d10070_val = new string[SeriesNumber],
                             d10070_si = new int[SeriesNumber],
+                            d10_10m_val = new double?[SeriesNumber],
+                            d10_10m_si = new int[SeriesNumber],
+                            d10_1h_val = new double?[SeriesNumber],
+                            d10_1h_si = new int[SeriesNumber],
+                            d70_10m_val = new double?[SeriesNumber],
+                            d70_10m_si = new int[SeriesNumber],
                         };
                         DateTime dt = doidt.AddMinutes(-10 * SeriesNumber);
                         for (int n = 0; n < SeriesNumber; n++)
@@ -130,6 +157,12 @@ namespace TKRain.Models
                             rs.d10060_si[n] = -1;
                         for (int n = 0; n < SeriesNumber; n++)
                             rs.d10070_si[n] = -1;
+                        for (int n = 0; n < SeriesNumber; n++)
+                            rs.d10_10m_si[n] = -1;
+                        for (int n = 0; n < SeriesNumber; n++)
+                            rs.d10_1h_si[n] = -1;
+                        for (int n = 0; n < SeriesNumber; n++)
+                            rs.d70_10m_si[n] = -1;
                     }
 
                     int sn = SeriesNumber - 1;
@@ -141,6 +174,27 @@ namespace TKRain.Models
           
                     rs.d10070_val[sn] = oi.odd.wd.d10070_10m.ov;
                     rs.d10070_si[sn] = oi.odd.wd.d10070_10m.osi;
+
+                    //雨量データの計算
+        var wr = weatherRainList.Find(x => x.sc == sc);
+                    if(wr != null && wr.ot == doidt)
+                    {
+                        rs.d10_10m_val[sn] = wr.d10_10m_val;
+                        rs.d10_10m_si[sn] = wr.d10_10m_si;
+                        rs.d10_1h_val[sn] = wr.d10_1h_val;
+                        rs.d10_1h_si[sn] = wr.d10_1h_si;
+                        rs.d70_10m_val[sn] = wr.d70_10m_val;
+                        rs.d70_10m_si[sn] = wr.d70_10m_si;
+                    }
+                    else
+                    {
+                        rs.d10_10m_val[sn] = null;
+                        rs.d10_10m_si[sn] = -1;
+                        rs.d10_1h_val[sn] = null;
+                        rs.d10_1h_si[sn] = -1;
+                        rs.d70_10m_val[sn] = null;
+                        rs.d70_10m_si[sn] = -1;
+                    }
 
                     roadDataList.hr.Add(new RoadData
                     {
@@ -155,6 +209,12 @@ namespace TKRain.Models
                         d10060_si = rs.d10060_si[sn],
                         d10070_val = rs.d10070_val[sn],
                         d10070_si = rs.d10070_si[sn],
+                        d10_10m_val = rs.d10_10m_val[sn],
+                        d10_10m_si = rs.d10_10m_si[sn],
+                        d10_1h_val = rs.d10_1h_val[sn],
+                        d10_1h_si = rs.d10_1h_si[sn],
+                        d70_10m_val = rs.d70_10m_val[sn],
+                        d70_10m_si = rs.d70_10m_si[sn],
                         dt = doidt
                     });
 
@@ -172,6 +232,7 @@ namespace TKRain.Models
                             気温 = rs.d10030_val[sn],
                             風速 = rs.d10060_val[sn],
                             風向 = rs.d10070_val[sn],
+                            時間雨量 = (int?) rs.d10_1h_val[sn] ,
                             観測時間 = doidt,
                             コード = sc
                         }
@@ -182,6 +243,12 @@ namespace TKRain.Models
 
                     File.WriteAllText(path, JsonConvert.SerializeObject(rs));
                     number++;
+                    //日が変わったら日次ファイルを更新
+                    if (observationDateTime.Day != prevObservationTime.Day)
+                    {
+                        MakeDailyData(rs, prevObservationTime);
+                        dailyDataUpLoad = true;
+                    }
                 }
                 catch (Exception e1)
                 {
@@ -193,7 +260,37 @@ namespace TKRain.Models
             File.WriteAllText(Path.Combine("Data", "Road", "RoadWeather.json"), JsonConvert.SerializeObject(data));
             File.WriteAllText(Path.Combine("Data", "Road", "RoadWeather.geojson"), JsonConvert.SerializeObject(geojson));
             File.WriteAllText(Path.Combine("Data", "RoadWeatherObservationTime.text"), observationDateTime.ToString());
+
             return number;
+        }
+
+        private void MakeDailyData(RoadSeries rs, DateTime dt)
+        {
+            DateTime dt0 = new DateTime(dt.Year, dt.Month, dt.Day);
+            WeatherDaily wd = new WeatherDaily();
+            wd.temperature = new double? [144];
+            wd.wind_speed = new int?[144];
+            wd.wind_direction = new string[144];
+            wd.ten_minutes_rainfall = new double?[144];
+            wd.hourly_rainfall = new double?[144];
+            wd.total_rainfall = new double?[144];
+            wd.observation_time = new DateTime[144];
+            StringBuilder csv = new StringBuilder();
+            csv.AppendLine("\"observation_time\", \"temperature\", \"wind_speed\", \"wind_direction\", \"ten_minutes_rainfal\", \"hourly_rainfall\", \"total_rainfall\"");
+            int offset = (int)((dt0 - rs.ot[0]).Ticks / 6000000000) + 1;
+            for (int n = offset; n < offset + 144; n++)
+            {
+                    wd.temperature[n - offset] = rs.d10030_val[n];
+                    wd.wind_speed[n - offset] = rs.d10060_val[n];
+                    wd.wind_direction[n - offset] = rs.d10070_val[n];
+                    wd.ten_minutes_rainfall[n - offset] = rs.d10_10m_val[n];
+                    wd.hourly_rainfall[n - offset] = rs.d10_1h_val[n];
+                    wd.total_rainfall[n - offset] = rs.d70_10m_val[n];
+                    wd.observation_time[n - offset] = rs.ot[n];
+                    csv.AppendLine($"\"{rs.ot[n].ToString("HH:mm")}\", {rs.d10030_val[n]}, {rs.d10060_val[n]}, {rs.d10070_val[n]}, {rs.d10_10m_val[n]}, {rs.d10_1h_val[n]}, {rs.d70_10m_val[n]}");
+            }
+            File.WriteAllText(Path.Combine("Data", "Weather", rs.sc + "_" + dt0.ToString("yyyyMMdd") + ".json"), JsonConvert.SerializeObject(wd));
+            File.WriteAllText(Path.Combine("Data", "Weather", rs.sc + "_" + dt0.ToString("yyyyMMdd") + ".csv"), csv.ToString());
         }
 
         //累積データの観測所情報の更新
@@ -273,6 +370,18 @@ namespace TKRain.Models
         public string d10070_val { get; set; }
         /// 風向ステータス
         public int d10070_si { get; set; }
+        ///10分雨量
+        public double? d10_10m_val { get; set; }
+        ///10分雨量ステータス
+        public int d10_10m_si { get; set; }
+        ///時間雨量
+        public double? d10_1h_val { get; set; }
+        ///時間雨量ステータス
+        public int d10_1h_si { get; set; }
+        ///累計雨量
+        public double? d70_10m_val { get; set; }
+        ///累計雨量ステータス
+        public int d70_10m_si { get; set; }
         /// 観測時間
         public DateTime dt { get; set; }
     }
@@ -303,6 +412,15 @@ namespace TKRain.Models
         // 風向
         public string[] d10070_val { get; set; }
         public int[] d10070_si { get; set; }
+        //10分雨量
+        public double?[] d10_10m_val { get; set; }
+        public int[] d10_10m_si { get; set; }
+        //時間雨量
+        public double?[] d10_1h_val { get; set; }
+        public int[] d10_1h_si { get; set; }
+        //累計雨量
+        public double?[] d70_10m_val { get; set; }
+        public int[] d70_10m_si { get; set; }
     }
 
     /// 道路気象データ
@@ -388,9 +506,33 @@ namespace TKRain.Models
         public double? 気温 { get; set; }
         public int? 風速 { get; set; }
         public string 風向 { get; set; }
+        public int? 時間雨量 { get; set; }
         public DateTime 観測時間 { get; set; }
         public string コード { get; set; }
     }
 
+    public class WeatherDaily
+    {
+        public double?[] temperature { get; set; }
+        public int?[] wind_speed { get; set; }
+        public string[] wind_direction { get; set; }
+        public double?[] ten_minutes_rainfall { get; set; }
+        public double?[] hourly_rainfall { get; set; }
+        public double?[] total_rainfall { get; set; }
+        public DateTime[] observation_time { get; set; }
+    }
+    public class WeatherRain
+    {
+        /// 観測局コード
+        public string sc { get; set; }
+        public int? d10_10m_val { get; set; }
+        public int d10_10m_si { get; set; }
+        public int? d10_1h_val { get; set; }
+        public int d10_1h_si { get; set; }
+        public int? d70_10m_val { get; set; }
+        public int d70_10m_si { get; set; }
+        // 観測時間
+        public DateTime ot { get; set; }
+    }
 }
 

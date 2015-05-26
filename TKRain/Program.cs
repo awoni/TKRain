@@ -59,12 +59,12 @@ namespace TKRain
             Observation.ObservationIni();
             List<Task> ObsTask = new List<Task>();
             DateTime prevObservationTime;
-
+            List<WeatherRain> weatherRainList = new List<WeatherRain>();
             try {
                 if (Observation.IsUpdateRequired("RainfallObservationTime.text", out prevObservationTime))
                 {
                     var rainfall = new Rainfall();
-                    int number = rainfall.GetRainfallData(prevObservationTime);
+                    int number = rainfall.GetRainfallData(prevObservationTime, weatherRainList);
                     if (number > 0)
                     {
                         LoggerClass.NLogInfo("雨量処理件数: " + number + "件");
@@ -103,13 +103,16 @@ namespace TKRain
             {
                 if (Observation.IsUpdateRequired("RoadWeatherObservationTime.text", out prevObservationTime))
                 {
+                    bool dailyDataUpLoad;
                     var roadWeather = new RoadWeather();
-                    int number = roadWeather.GetRoadWeatherData(prevObservationTime);
+                    int number = roadWeather.GetRoadWeatherData(prevObservationTime, weatherRainList, out dailyDataUpLoad);
                     if (number > 0)
                     {
                         LoggerClass.NLogInfo("道路気象処理件数: " + number + "件");
 #if !DEBUG
                         ObsTask.Add(Observation.AmazonS3DirctoryUpload("Road", 0));
+                        if(dailyDataUpLoad)
+                            ObsTask.Add(Observation.AmazonS3DirctoryUpload("Weather", 0));
 #endif
                     }
                 }
