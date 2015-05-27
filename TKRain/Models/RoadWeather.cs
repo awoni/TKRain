@@ -276,7 +276,7 @@ namespace TKRain.Models
             wd.total_rainfall = new double?[144];
             wd.observation_time = new DateTime[144];
             StringBuilder csv = new StringBuilder();
-            csv.AppendLine("\"observation_time\", \"temperature\", \"wind_speed\", \"wind_direction\", \"ten_minutes_rainfal\", \"hourly_rainfall\", \"total_rainfall\"");
+            csv.AppendLine("時間, 気温, 風速, 風向, 10分雨量, 時間雨量, 累計雨量");
             int offset = (int)((dt0 - rs.ot[0]).Ticks / 6000000000) + 1;
             for (int n = offset; n < offset + 144; n++)
             {
@@ -287,10 +287,10 @@ namespace TKRain.Models
                     wd.hourly_rainfall[n - offset] = rs.d10_1h_val[n];
                     wd.total_rainfall[n - offset] = rs.d70_10m_val[n];
                     wd.observation_time[n - offset] = rs.ot[n];
-                    csv.AppendLine($"\"{rs.ot[n].ToString("HH:mm")}\", {rs.d10030_val[n]}, {rs.d10060_val[n]}, {rs.d10070_val[n]}, {rs.d10_10m_val[n]}, {rs.d10_1h_val[n]}, {rs.d70_10m_val[n]}");
+                    csv.AppendLine($"{rs.ot[n].ToString("HH:mm")}, {rs.d10030_val[n]}, {rs.d10060_val[n]}, {rs.d10070_val[n]}, {rs.d10_10m_val[n]}, {rs.d10_1h_val[n]}, {rs.d70_10m_val[n]}");
             }
-            File.WriteAllText(Path.Combine("Data", "Weather", rs.sc + "_" + dt0.ToString("yyyyMMdd") + ".json"), JsonConvert.SerializeObject(wd));
-            File.WriteAllText(Path.Combine("Data", "Weather", rs.sc + "_" + dt0.ToString("yyyyMMdd") + ".csv"), csv.ToString());
+            File.WriteAllText(Path.Combine("Data", "RoadDaily", rs.sc + "-" + dt0.ToString("yyyyMMdd") + ".json"), JsonConvert.SerializeObject(wd));
+            File.WriteAllText(Path.Combine("Data", "RoadDaily", rs.sc + "-" + dt0.ToString("yyyyMMdd") + ".csv"), csv.ToString(), Encoding.GetEncoding(932));
         }
 
         //累積データの観測所情報の更新

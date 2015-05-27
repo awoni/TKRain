@@ -112,7 +112,7 @@ namespace TKRain
 #if !DEBUG
                         ObsTask.Add(Observation.AmazonS3DirctoryUpload("Road", 0));
                         if(dailyDataUpLoad)
-                            ObsTask.Add(Observation.AmazonS3DirctoryUpload("Weather", 0));
+                            ObsTask.Add(Observation.AmazonS3DirctoryUpload("RoadDaily", 0));
 #endif
                     }
                 }
