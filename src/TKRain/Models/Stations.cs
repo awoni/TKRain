@@ -176,7 +176,7 @@ namespace TKRain.Models
                 if (alterAddress.StartsWith(ma.Address))
                     return ma.Office;
             }
-            LoggerClass.NLogInfo("所在地に問題。観測所: " + obn + " 所在地: " + address);
+            LoggerClass.LogInfo("所在地に問題。観測所: " + obn + " 所在地: " + address);
             return ofc;
         }
     }

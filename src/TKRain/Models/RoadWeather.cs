@@ -70,7 +70,7 @@ namespace TKRain.Models
                     DateTime doidt = observationDateTime;
                     if (observationTime != oi.odd.wd.d10030_10m.ot)
                     {
-                        LoggerClass.NLogInfo("道路気象観測時間相違 観測所: " + oi.obn);
+                        LoggerClass.LogInfo("道路気象観測時間相違 観測所: " + oi.obn);
                         doidt = observationTime.EndsWith("24:00") ?
                             DateTime.Parse(observationTime.Substring(0, observationTime.Length - 6)).AddDays(1)
                             : DateTime.Parse(observationTime);
@@ -252,7 +252,7 @@ namespace TKRain.Models
                 }
                 catch (Exception e1)
                 {
-                    LoggerClass.NLogInfo("道路気象累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
+                    LoggerClass.LogInfo("道路気象累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
                 }
             }
             File.WriteAllText(Path.Combine("Data", "Road", "RoadData.json"), JsonConvert.SerializeObject(roadDataList));
@@ -320,7 +320,7 @@ namespace TKRain.Models
                         var si = stationInfoList.Find(x => x.sc == sc);
                         if (si == null)
                         {
-                            LoggerClass.NLogInfo("該当の観測所情報がない 観測所: " + oi.obn);
+                            LoggerClass.LogInfo("該当の観測所情報がない 観測所: " + oi.obn);
                             continue;
                         }
 
@@ -334,7 +334,7 @@ namespace TKRain.Models
                 }
                 catch (Exception e1)
                 {
-                    LoggerClass.NLogInfo("雨量観測所情報修正エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
+                    LoggerClass.LogInfo("雨量観測所情報修正エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
                 }
             }
         }

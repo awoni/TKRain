@@ -61,7 +61,7 @@ namespace TKRain.Models
                     DateTime doidt = observationDateTime;
                     if (observationTime != oi.odd.wd.d10_10m.ot)
                     {
-                        LoggerClass.NLogInfo("水位観測時間相違 観測所: " + oi.obn);
+                        LoggerClass.LogInfo("水位観測時間相違 観測所: " + oi.obn);
                         doidt = observationTime.EndsWith("24:00") ?
                             DateTime.Parse(observationTime.Substring(0, observationTime.Length - 6)).AddDays(1)
                             : DateTime.Parse(observationTime);
@@ -198,7 +198,7 @@ namespace TKRain.Models
                 }
                 catch (Exception e1)
                 {
-                    LoggerClass.NLogInfo("水位累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
+                    LoggerClass.LogInfo("水位累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
                 }
             }
             File.WriteAllText(Path.Combine("Data", "River", "RiverData.json"), JsonConvert.SerializeObject(riverDataList));
@@ -237,7 +237,7 @@ namespace TKRain.Models
                         var si = stationInfoList.Find(x => x.sc == sc);
                         if (si == null)
                         {
-                            LoggerClass.NLogInfo("該当の観測所情報がない 観測所: " + oi.obn);
+                            LoggerClass.LogInfo("該当の観測所情報がない 観測所: " + oi.obn);
                             continue;
                         }
                         rs.mo = si.mo;
@@ -254,7 +254,7 @@ namespace TKRain.Models
                 }
                 catch (Exception e1)
                 {
-                    LoggerClass.NLogInfo("水位観測所情報修正エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
+                    LoggerClass.LogInfo("水位観測所情報修正エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
                 }
             }
         }

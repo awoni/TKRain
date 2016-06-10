@@ -141,7 +141,7 @@ namespace TKRain.Models
                 }
                 catch (Exception e1)
                 {
-                    LoggerClass.NLogInfo("潮位データ作成エラー 観測所: " + oi.Nm + " メッセージ: " + e1.Message);
+                    LoggerClass.LogInfo("潮位データ作成エラー 観測所: " + oi.Nm + " メッセージ: " + e1.Message);
                 }
             }
             File.WriteAllText(Path.Combine("Data", "Tide", "TideData.json"), JsonConvert.SerializeObject(tideDataList));
@@ -178,7 +178,7 @@ namespace TKRain.Models
                         var si = stationInfoList.Find(x => x.sc == sc);
                         if (si == null)
                         {
-                            LoggerClass.NLogInfo("該当の観測所情報がない 観測所: " + oi.Nm);
+                            LoggerClass.LogInfo("該当の観測所情報がない 観測所: " + oi.Nm);
                             continue;
                         }
 
@@ -192,7 +192,7 @@ namespace TKRain.Models
                 }
                 catch (Exception e1)
                 {
-                    LoggerClass.NLogInfo("雨量観測所情報修正エラー 観測所: " + oi.Nm + " メッセージ: " + e1.Message);
+                    LoggerClass.LogInfo("雨量観測所情報修正エラー 観測所: " + oi.Nm + " メッセージ: " + e1.Message);
                 }
             }
         }

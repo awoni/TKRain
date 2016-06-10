@@ -67,12 +67,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TKRain\TKRain.csproj">
-      <Project>{5144ccf0-6e59-45e1-b257-0c555e07c73b}</Project>
-      <Name>TKRain</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>
