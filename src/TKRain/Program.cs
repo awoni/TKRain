@@ -12,6 +12,13 @@ namespace TKRain
     public class Program
     {
         public static IConfigurationRoot Configuration;
+
+        private static readonly string[] _rainFiles = { "RainData.json", "Rainfall.xml", "Rainfall.json", "Rainfall.geojson" };
+        private static readonly string[] _riverFiles = { "RiverData.json", "RiverLevel.xml", "RiverLevel.json", "RiverLevel.geojson" };
+        private static readonly string[] _roadFiles = { "RoadData.json", "RoadWeather.xml", "RoadWeather.json", "RoadWeather.geojson" };
+        private static readonly string[] _damFiles = { "DamData.json", "DamInfo.xml", "DamInfo.json"};
+        private static readonly string[] _tideFiles = { "TideData.json"};
+
         public static void Main(string[] args)
         {
             var builder = new ConfigurationBuilder()
@@ -71,7 +78,7 @@ namespace TKRain
                     {
                         LoggerClass.LogInfo("雨量処理件数: " + number + "件");
 
-                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("Rain", 0));
+                        ObsTask.Add(Observation.AmazonS3ListUpload("Rain", _rainFiles));
 
                     }
                 }
@@ -91,7 +98,7 @@ namespace TKRain
                     {
                         LoggerClass.LogInfo("水位処理件数: " + number + "件");
 
-                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("River", 0));
+                        ObsTask.Add(Observation.AmazonS3ListUpload("River", _riverFiles));
                     }
                 }
             }
@@ -111,7 +118,7 @@ namespace TKRain
                     {
                         LoggerClass.LogInfo("道路気象処理件数: " + number + "件");
 
-                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("Road", 0));
+                        ObsTask.Add(Observation.AmazonS3ListUpload("Road", _roadFiles));
                         if(dailyDataUpLoad)
                             ObsTask.Add(Observation.AmazonS3DirctoryUpload("RoadDaily", 0));
 
@@ -134,7 +141,7 @@ namespace TKRain
                     {
                         LoggerClass.LogInfo("ダム情報処理件数: " + number + "件");
 
-                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("Dam", 0));
+                        ObsTask.Add(Observation.AmazonS3ListUpload("Dam", _damFiles));
 
                     }
                 }
@@ -155,7 +162,7 @@ namespace TKRain
                     {
                         LoggerClass.LogInfo("潮位処理件数: " + number + "件");
 
-                        ObsTask.Add(Observation.AmazonS3DirctoryUpload("Tide", 0));
+                        ObsTask.Add(Observation.AmazonS3ListUpload("Tide", _tideFiles));
 
                     }
                 }

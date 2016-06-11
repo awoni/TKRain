@@ -92,7 +92,7 @@ namespace TKRain.Models
         }
 
         //AmazonのS3へのアップロード
-        public async Task AmazonS3Upload(string path, int ntry)
+        public async Task AmazonS3Upload(string path, int ntry = 0)
         {
             AWSCredentials credentials = new Amazon.Runtime.BasicAWSCredentials(AppInit.AWSAccessKey, AppInit.AWSSecretKey);
 
@@ -123,7 +123,7 @@ namespace TKRain.Models
             }
         }
 
-        public static async Task AmazonS3DirctoryUpload(string name, int ntry)
+        public static async Task AmazonS3DirctoryUpload(string name, int ntry = 0)
         {
             AWSCredentials credentials = new Amazon.Runtime.BasicAWSCredentials(AppInit.AWSAccessKey, AppInit.AWSSecretKey);
 
@@ -143,6 +143,33 @@ namespace TKRain.Models
                     LoggerClass.LogError("EC2アップロードエラー: " + e1.Message);
             }
         }
+
+
+        public static async Task AmazonS3ListUpload(string name, string[] filenames, int ntry = 0)
+        {
+            AWSCredentials credentials = new Amazon.Runtime.BasicAWSCredentials(AppInit.AWSAccessKey, AppInit.AWSSecretKey);
+
+            try
+            {
+                using (var s3Client = new AmazonS3Client(credentials, RegionEndpoint.APNortheast1))
+                {
+                    var utility = new TransferUtility(s3Client, new TransferUtilityConfig());
+
+                    foreach(string filename in filenames)
+                    {
+                        await utility.UploadAsync(Path.Combine(AppInit.DataDir, name, filename), AppInit.BucketName + "/" + name);
+                    }
+                }
+            }
+            catch (Exception e1)
+            {
+                if (ntry < 3)
+                    await AmazonS3ListUpload(name, filenames, ++ntry);
+                else
+                    LoggerClass.LogError("EC2アップロードエラー: " + e1.Message);
+            }
+        }
+
 
         public static bool IsUpdateRequired(string filename, out DateTime PrevObservationTime)
         {
