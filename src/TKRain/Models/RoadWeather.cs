@@ -78,7 +78,7 @@ namespace TKRain.Models
 
                     RoadSeries rs;
                     string sc = oi.ofc + "-" + oi.obc;
-                    string path = Path.Combine("Data", "Road", sc + ".json");
+                    string path = Path.Combine(AppInit.DataDir, "Road", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);
@@ -167,7 +167,7 @@ namespace TKRain.Models
 
                     int sn = SeriesNumber - 1;
                     rs.ot[sn] = doidt;
-                    rs.d10030_val[SeriesNumber - 1] = Observation.StringToDouble(oi.odd.wd.d10030_10m.ov);
+                    rs.d10030_val[sn] = Observation.StringToDouble(oi.odd.wd.d10030_10m.ov);
                     rs.d10030_si[sn] = oi.odd.wd.d10030_10m.osi;
                     rs.d10060_val[sn] = Observation.StringToInt(oi.odd.wd.d10060_10m.ov);
                     rs.d10060_si[sn] = oi.odd.wd.d10060_10m.osi;
@@ -244,7 +244,7 @@ namespace TKRain.Models
                     File.WriteAllText(path, JsonConvert.SerializeObject(rs));
                     number++;
                     //日が変わったら日次ファイルを更新
-                    if (observationDateTime.Day != prevObservationTime.Day)
+                    if (observationDateTime.Day != prevObservationTime.Day && prevObservationTime != default(DateTime))
                     {
                         MakeDailyData(rs, prevObservationTime);
                         dailyDataUpLoad = true;
@@ -255,11 +255,11 @@ namespace TKRain.Models
                     LoggerClass.LogInfo("道路気象累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
                 }
             }
-            File.WriteAllText(Path.Combine("Data", "Road", "RoadData.json"), JsonConvert.SerializeObject(roadDataList));
-            Observation.SaveToXml(Path.Combine("Data", "Road", "RoadWeather.xml"), data, 0);
-            File.WriteAllText(Path.Combine("Data", "Road", "RoadWeather.json"), JsonConvert.SerializeObject(data));
-            File.WriteAllText(Path.Combine("Data", "Road", "RoadWeather.geojson"), JsonConvert.SerializeObject(geojson));
-            File.WriteAllText(Path.Combine("Data", "RoadWeatherObservationTime.text"), observationDateTime.ToString());
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Road", "RoadData.json"), JsonConvert.SerializeObject(roadDataList));
+            Observation.SaveToXml(Path.Combine(AppInit.DataDir, "Road", "RoadWeather.xml"), data, 0);
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Road", "RoadWeather.json"), JsonConvert.SerializeObject(data));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Road", "RoadWeather.geojson"), JsonConvert.SerializeObject(geojson));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadWeatherObservationTime.txt"), observationDateTime.ToString());
 
             return number;
         }
@@ -289,8 +289,8 @@ namespace TKRain.Models
                     wd.observation_time[n - offset] = rs.ot[n];
                     csv.AppendLine($"{rs.ot[n].ToString("HH:mm")}, {rs.d10030_val[n]}, {rs.d10060_val[n]}, {rs.d10070_val[n]}, {rs.d10_10m_val[n]}, {rs.d10_1h_val[n]}, {rs.d70_10m_val[n]}");
             }
-            File.WriteAllText(Path.Combine("Data", "RoadDaily", rs.sc + "-" + dt0.ToString("yyyyMMdd") + ".json"), JsonConvert.SerializeObject(wd));
-            File.WriteAllText(Path.Combine("Data", "RoadDaily", rs.sc + "-" + dt0.ToString("yyyyMMdd") + ".csv"), csv.ToString(), Encoding.GetEncoding(932));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadDaily", rs.sc + "-" + dt0.ToString("yyyyMMdd") + ".json"), JsonConvert.SerializeObject(wd));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadDaily", rs.sc + "-" + dt0.ToString("yyyyMMdd") + ".csv"), csv.ToString(), Encoding.GetEncoding(932));
         }
 
         //累積データの観測所情報の更新
@@ -301,7 +301,7 @@ namespace TKRain.Models
             if (data == null)
                 return;
 
-            string j = File.ReadAllText(Path.Combine("Config", "RoadWeather.json"));
+            string j = File.ReadAllText(Path.Combine(AppInit.DataDir, "Config", "RoadWeather.json"));
             RoadStationList stationInfoList = JsonConvert.DeserializeObject<RoadStationList>(j);
 
             //累積データヘッダー部分の修正
@@ -311,7 +311,7 @@ namespace TKRain.Models
                 {
                     RoadSeries rs;
                     string sc = oi.ofc + "-" + oi.obc;
-                    string path = Path.Combine("Data", "Road", sc + ".json");
+                    string path = Path.Combine(AppInit.DataDir, "Road", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);

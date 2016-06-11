@@ -63,7 +63,7 @@ namespace TKRain.Models
 
                     DamSeries rs;
                     string sc = oi.ofc + "-" + oi.obc;
-                    string path = Path.Combine("Data", "Dam", sc + ".json");
+                    string path = Path.Combine(AppInit.DataDir, "Dam", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);
@@ -268,11 +268,11 @@ namespace TKRain.Models
                     LoggerClass.LogInfo("ダム情報累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
                 }
             }
-            File.WriteAllText(Path.Combine("Data", "Dam", "DamData.json"), JsonConvert.SerializeObject(damDataList));
-            Observation.SaveToXml(Path.Combine("data", "dam", "DamInfo.xml"), data, 0);
-            File.WriteAllText(Path.Combine("data", "dam", "DamInfo.json"), JsonConvert.SerializeObject(data));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Dam", "DamData.json"), JsonConvert.SerializeObject(damDataList));
+            Observation.SaveToXml(Path.Combine(AppInit.DataDir, "dam", "DamInfo.xml"), data, 0);
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "dam", "DamInfo.json"), JsonConvert.SerializeObject(data));
 
-            File.WriteAllText(Path.Combine("data", "DamObservationTime.text"), observationDateTime.ToString());
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "DamObservationTime.txt"), observationDateTime.ToString());
             return number;
         }
 
@@ -284,7 +284,7 @@ namespace TKRain.Models
             if (data == null)
                 return;
 
-            string j = File.ReadAllText(Path.Combine("Config", "DamInfo.json"));
+            string j = File.ReadAllText(Path.Combine(AppInit.DataDir, "Config", "DamInfo.json"));
             DamStationList stationInfoList = JsonConvert.DeserializeObject<DamStationList>(j);
 
             //累積データヘッダー部分の修正
@@ -294,7 +294,7 @@ namespace TKRain.Models
                 {
                     DamSeries rs;
                     string sc = oi.ofc + "-" + oi.obc;
-                    string path = Path.Combine("Data", "Dam", sc + ".json");
+                    string path = Path.Combine(AppInit.DataDir, "Dam", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);

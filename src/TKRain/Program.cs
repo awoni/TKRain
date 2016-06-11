@@ -63,16 +63,16 @@ namespace TKRain
             List<WeatherRain> weatherRainList = new List<WeatherRain>();
             try
             {
-                if (Observation.IsUpdateRequired("RainfallObservationTime.text", out prevObservationTime))
+                if (Observation.IsUpdateRequired("RainfallObservationTime.txt", out prevObservationTime))
                 {
                     var rainfall = new Rainfall();
                     int number = rainfall.GetRainfallData(prevObservationTime, weatherRainList);
                     if (number > 0)
                     {
                         LoggerClass.LogInfo("雨量処理件数: " + number + "件");
-#if !DEBUG
+
                         ObsTask.Add(Observation.AmazonS3DirctoryUpload("Rain", 0));
-#endif
+
                     }
                 }
             }
@@ -83,16 +83,15 @@ namespace TKRain
 
             try
             {
-                if (Observation.IsUpdateRequired("RiverLevelObservationTime.text", out prevObservationTime))
+                if (Observation.IsUpdateRequired("RiverLevelObservationTime.txt", out prevObservationTime))
                 {
                     var riverLevel = new RiverLevel();
                     int number = riverLevel.GetRiverLevelData(prevObservationTime);
                     if (number > 0)
                     {
                         LoggerClass.LogInfo("水位処理件数: " + number + "件");
-#if !DEBUG
+
                         ObsTask.Add(Observation.AmazonS3DirctoryUpload("River", 0));
-#endif
                     }
                 }
             }
@@ -103,7 +102,7 @@ namespace TKRain
 
             try
             {
-                if (Observation.IsUpdateRequired("RoadWeatherObservationTime.text", out prevObservationTime))
+                if (Observation.IsUpdateRequired("RoadWeatherObservationTime.txt", out prevObservationTime))
                 {
                     bool dailyDataUpLoad;
                     var roadWeather = new RoadWeather();
@@ -111,11 +110,11 @@ namespace TKRain
                     if (number > 0)
                     {
                         LoggerClass.LogInfo("道路気象処理件数: " + number + "件");
-#if !DEBUG
+
                         ObsTask.Add(Observation.AmazonS3DirctoryUpload("Road", 0));
                         if(dailyDataUpLoad)
                             ObsTask.Add(Observation.AmazonS3DirctoryUpload("RoadDaily", 0));
-#endif
+
                     }
                 }
             }
@@ -127,16 +126,16 @@ namespace TKRain
             //ダム情報
             try
             {
-                if (Observation.IsUpdateRequired("DamObservationTime.text", out prevObservationTime))
+                if (Observation.IsUpdateRequired("DamObservationTime.txt", out prevObservationTime))
                 {
                     var damInfo = new DamInfo();
                     int number = damInfo.GetDamInfoData(prevObservationTime);
                     if (number > 0)
                     {
                         LoggerClass.LogInfo("ダム情報処理件数: " + number + "件");
-#if !DEBUG
+
                         ObsTask.Add(Observation.AmazonS3DirctoryUpload("Dam", 0));
-#endif
+
                     }
                 }
             }
@@ -148,16 +147,16 @@ namespace TKRain
             //潮位
             try
             {
-                if (Observation.IsUpdateRequired("TideLevelObservationTime.text", out prevObservationTime))
+                if (Observation.IsUpdateRequired("TideLevelObservationTime.txt", out prevObservationTime))
                 {
                     var tideLevel = new TideLevel();
                     int number = tideLevel.GetTideLevelData(prevObservationTime);
                     if (number > 0)
                     {
                         LoggerClass.LogInfo("潮位処理件数: " + number + "件");
-#if !DEBUG
+
                         ObsTask.Add(Observation.AmazonS3DirctoryUpload("Tide", 0));
-#endif
+
                     }
                 }
             }

@@ -69,7 +69,7 @@ namespace TKRain.Models
 
                     RiverSeries rs;
                     string sc = oi.ofc + "-" + oi.obc;
-                    string path = Path.Combine("Data", "River", sc + ".json");
+                    string path = Path.Combine(AppInit.DataDir, "River", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);
@@ -201,12 +201,12 @@ namespace TKRain.Models
                     LoggerClass.LogInfo("水位累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
                 }
             }
-            File.WriteAllText(Path.Combine("Data", "River", "RiverData.json"), JsonConvert.SerializeObject(riverDataList));
-            Observation.SaveToXml(Path.Combine("Data", "River", "RiverLevel.xml"), data, 0);
-            File.WriteAllText(Path.Combine("Data", "River", "RiverLevel.json"), JsonConvert.SerializeObject(data));
-            File.WriteAllText(Path.Combine("Data", "River", "RiverLevel.geojson"), JsonConvert.SerializeObject(geojson));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "River", "RiverData.json"), JsonConvert.SerializeObject(riverDataList));
+            Observation.SaveToXml(Path.Combine(AppInit.DataDir, "River", "RiverLevel.xml"), data, 0);
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "River", "RiverLevel.json"), JsonConvert.SerializeObject(data));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "River", "RiverLevel.geojson"), JsonConvert.SerializeObject(geojson));
 
-            File.WriteAllText(Path.Combine("data", "RiverLevelObservationTime.text"), observationDateTime.ToString());
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "RiverLevelObservationTime.txt"), observationDateTime.ToString());
             return number;
         }
 
@@ -218,7 +218,7 @@ namespace TKRain.Models
             if (data == null)
                 return;
 
-            string j = File.ReadAllText(Path.Combine("Config", "RiverLevel.json"));
+            string j = File.ReadAllText(Path.Combine(AppInit.DataDir, "Config", "RiverLevel.json"));
             RiverStationList stationInfoList = JsonConvert.DeserializeObject<RiverStationList>(j);
 
             //累積データヘッダー部分の修正
@@ -228,7 +228,7 @@ namespace TKRain.Models
                 {
                     RiverSeries rs;
                     string sc = oi.ofc + "-" + oi.obc;
-                    string path = Path.Combine("Data", "River", sc + ".json");
+                    string path = Path.Combine(AppInit.DataDir, "River", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);

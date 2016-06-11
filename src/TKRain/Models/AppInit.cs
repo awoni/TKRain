@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.PlatformAbstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,6 +19,9 @@ namespace TKRain.Models
 
         public static void SetupIni(IConfigurationRoot configuration)
         {
+            ApplicationEnvironment env = PlatformServices.Default.Application;
+            LoggerClass.Ini(env.ApplicationBasePath);
+
             AWSAccessKey = configuration["AWSAccessKey"];
             AWSSecretKey = configuration["AWSSecretKey"];
             BucketName = configuration["BucketName"];

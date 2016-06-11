@@ -78,7 +78,7 @@ namespace TKRain.Models
 
                     RainSeries rs;
                     string sc = oi.ofc + "-" + oi.obc;
-                    string path = Path.Combine("Data", "Rain", sc + ".json");
+                    string path = Path.Combine(AppInit.DataDir, "Rain", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);
@@ -252,12 +252,12 @@ namespace TKRain.Models
                     LoggerClass.LogInfo("雨量累積データ作成エラー 観測所: " + oi.obn + " メッセージ: " + e1.Message);
                 }
             }
-            File.WriteAllText(Path.Combine("Data", "Rain", "RainData.json"), JsonConvert.SerializeObject(hourRainList));
-            Observation.SaveToXml(Path.Combine("Data", "Rain", "Rainfall.xml"), data, 0);
-            File.WriteAllText(Path.Combine("Data", "Rain", "Rainfall.json"), JsonConvert.SerializeObject(data));
-            File.WriteAllText(Path.Combine("Data", "Rain", "Rainfall.geojson"), JsonConvert.SerializeObject(geojson));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Rain", "RainData.json"), JsonConvert.SerializeObject(hourRainList));
+            Observation.SaveToXml(Path.Combine(AppInit.DataDir, "Rain", "Rainfall.xml"), data, 0);
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Rain", "Rainfall.json"), JsonConvert.SerializeObject(data));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Rain", "Rainfall.geojson"), JsonConvert.SerializeObject(geojson));
 
-            File.WriteAllText(Path.Combine("Data", "RainfallObservationTime.text"), observationDateTime.ToString());
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "RainfallObservationTime.txt"), observationDateTime.ToString());
             return number;
         }
 
@@ -269,7 +269,7 @@ namespace TKRain.Models
             if (data == null)
                 return;
 
-            string j = File.ReadAllText(Path.Combine("Config", "Rainfall.json"));
+            string j = File.ReadAllText(Path.Combine(AppInit.DataDir, "Config", "Rainfall.json"));
             RainStationList stationInfoList = JsonConvert.DeserializeObject<RainStationList>(j);
 
             //累積データヘッダー部分の修正
@@ -279,7 +279,7 @@ namespace TKRain.Models
                 {
                     RainSeries rs;
                     string sc = oi.ofc + "-" + oi.obc;
-                    string path = Path.Combine("Data", "Rain", sc + ".json");
+                    string path = Path.Combine(AppInit.DataDir, "Rain", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);

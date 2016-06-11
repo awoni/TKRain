@@ -56,7 +56,7 @@ namespace TKRain.Models
                     string sc = ocb[0] + "-" + ocb[1];
 
                     TideSeries ts;
-                    string path = Path.Combine("Data", "Tide", sc + ".json");
+                    string path = Path.Combine(AppInit.DataDir, "Tide", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);
@@ -144,9 +144,9 @@ namespace TKRain.Models
                     LoggerClass.LogInfo("潮位データ作成エラー 観測所: " + oi.Nm + " メッセージ: " + e1.Message);
                 }
             }
-            File.WriteAllText(Path.Combine("Data", "Tide", "TideData.json"), JsonConvert.SerializeObject(tideDataList));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Tide", "TideData.json"), JsonConvert.SerializeObject(tideDataList));
 
-            File.WriteAllText(Path.Combine("Data", "TideLevelObservationTime.text"), observationDateTime.ToString());
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "TideLevelObservationTime.txt"), observationDateTime.ToString());
             return number;
         }
 
@@ -157,7 +157,7 @@ namespace TKRain.Models
             if (data == null)
                 return;
 
-            string j = File.ReadAllText(Path.Combine("Config", "TideLevel.json"));
+            string j = File.ReadAllText(Path.Combine(AppInit.DataDir, "Config", "TideLevel.json"));
             TideStationList stationInfoList = JsonConvert.DeserializeObject<TideStationList>(j);
 
             //累積データヘッダー部分の修正
@@ -169,7 +169,7 @@ namespace TKRain.Models
                     string[] ocb = oi.Ocb.Split(',');
                     string sc = ocb[0] + "-" + ocb[1];
              
-                    string path = Path.Combine("Data", "Tide", sc + ".json");
+                    string path = Path.Combine(AppInit.DataDir, "Tide", sc + ".json");
                     if (File.Exists(path))
                     {
                         string json = File.ReadAllText(path);

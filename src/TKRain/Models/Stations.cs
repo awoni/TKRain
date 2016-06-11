@@ -156,11 +156,11 @@ namespace TKRain.Models
                     }
                 }
             }
-            File.WriteAllText(Path.Combine("Config", "Rainfall.json"), JsonConvert.SerializeObject(rain, Formatting.Indented));
-            File.WriteAllText(Path.Combine("Config", "RiverLevel.json"), JsonConvert.SerializeObject(river, Formatting.Indented));
-            File.WriteAllText(Path.Combine("Config", "DamInfo.json"), JsonConvert.SerializeObject(dam, Formatting.Indented));
-            File.WriteAllText(Path.Combine("Config", "TideLevel.json"), JsonConvert.SerializeObject(tide, Formatting.Indented));
-            File.WriteAllText(Path.Combine("Config", "RoadWeather.json"), JsonConvert.SerializeObject(road, Formatting.Indented));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Config", "Rainfall.json"), JsonConvert.SerializeObject(rain, Formatting.Indented));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Config", "RiverLevel.json"), JsonConvert.SerializeObject(river, Formatting.Indented));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Config", "DamInfo.json"), JsonConvert.SerializeObject(dam, Formatting.Indented));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Config", "TideLevel.json"), JsonConvert.SerializeObject(tide, Formatting.Indented));
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Config", "RoadWeather.json"), JsonConvert.SerializeObject(road, Formatting.Indented));
         }
 
         private static int GetManageOffice(int ofc, string address, out string alterAddress, string obn)

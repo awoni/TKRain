@@ -132,7 +132,7 @@ namespace TKRain.Models
                 using (var s3Client = new AmazonS3Client(credentials, RegionEndpoint.APNortheast1))
                 {
                     var utility = new TransferUtility(s3Client, new TransferUtilityConfig());
-                    await utility.UploadDirectoryAsync(Path.Combine("Data", name), AppInit.BucketName + "/" + name);
+                    //await utility.UploadAsync(Path.Combine(AppInit.DataDir, name), AppInit.BucketName + "/" + name);
                 }
             }
             catch (Exception e1)
@@ -148,7 +148,7 @@ namespace TKRain.Models
         {
             try
             {
-                PrevObservationTime = DateTime.Parse(File.ReadAllText(Path.Combine("data", filename)));
+                PrevObservationTime = DateTime.Parse(File.ReadAllText(Path.Combine(AppInit.DataDir, filename)));
                 //10分ごとに更新
                 if ((DateTime.Now - PrevObservationTime).Ticks >= 6000000000L)
                     return true;
