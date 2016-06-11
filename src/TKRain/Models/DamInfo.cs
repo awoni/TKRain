@@ -269,8 +269,8 @@ namespace TKRain.Models
                 }
             }
             File.WriteAllText(Path.Combine(AppInit.DataDir, "Dam", "DamData.json"), JsonConvert.SerializeObject(damDataList));
-            Observation.SaveToXml(Path.Combine(AppInit.DataDir, "dam", "DamInfo.xml"), data, 0);
-            File.WriteAllText(Path.Combine(AppInit.DataDir, "dam", "DamInfo.json"), JsonConvert.SerializeObject(data));
+            Observation.SaveToXml(Path.Combine(AppInit.DataDir, "Dam", "DamInfo.xml"), data, 0);
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "Dam", "DamInfo.json"), JsonConvert.SerializeObject(data));
 
             File.WriteAllText(Path.Combine(AppInit.DataDir, "DamObservationTime.txt"), observationDateTime.ToString());
             return number;
