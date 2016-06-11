@@ -31,5 +31,11 @@
     "netcoreapp1.0": {
       "imports": "dnxcore50"
     }
+  },
+  "publishOptions": {
+    "include": [
+      "appsettings.json",
+      "appsettings.*.json"
+    ]
   }
 }
