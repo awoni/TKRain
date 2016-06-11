@@ -33,10 +33,9 @@ namespace TKRain.Models
         {
         }
 
-        public int GetRoadWeatherData(DateTime prevObservationTime, List<WeatherRain> weatherRainList, out bool dailyDataUpLoad)
+        public int GetRoadWeatherData(DateTime prevObservationTime, List<WeatherRain> weatherRainList, List<string> filenames)
         {
             int number = 0;
-            dailyDataUpLoad = false;
 
             RoadDocd data = Observation.TgGetStream<RoadDocd>(RoadWeatherUrl, 0);
             if (data == null)
@@ -246,8 +245,7 @@ namespace TKRain.Models
                     //日が変わったら日次ファイルを更新
                     if (observationDateTime.Day != prevObservationTime.Day && prevObservationTime != default(DateTime))
                     {
-                        MakeDailyData(rs, prevObservationTime);
-                        dailyDataUpLoad = true;
+                        MakeDailyData(rs, prevObservationTime, filenames);
                     }
                 }
                 catch (Exception e1)
@@ -264,7 +262,7 @@ namespace TKRain.Models
             return number;
         }
 
-        private void MakeDailyData(RoadSeries rs, DateTime dt)
+        private void MakeDailyData(RoadSeries rs, DateTime dt, List<string> filenames)
         {
             DateTime dt0 = new DateTime(dt.Year, dt.Month, dt.Day);
             WeatherDaily wd = new WeatherDaily();
@@ -289,8 +287,14 @@ namespace TKRain.Models
                     wd.observation_time[n - offset] = rs.ot[n];
                     csv.AppendLine($"{rs.ot[n].ToString("HH:mm")}, {rs.d10030_val[n]}, {rs.d10060_val[n]}, {rs.d10070_val[n]}, {rs.d10_10m_val[n]}, {rs.d10_1h_val[n]}, {rs.d70_10m_val[n]}");
             }
-            File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadDaily", rs.sc + "-" + dt0.ToString("yyyyMMdd") + ".json"), JsonConvert.SerializeObject(wd));
-            File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadDaily", rs.sc + "-" + dt0.ToString("yyyyMMdd") + ".csv"), csv.ToString(), Encoding.GetEncoding(932));
+
+            string jsonFilename = rs.sc + "-" + dt0.ToString("yyyyMMdd") + ".json";
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadDaily", jsonFilename), JsonConvert.SerializeObject(wd));
+            filenames.Add(jsonFilename);
+
+            string csvFileName = rs.sc + "-" + dt0.ToString("yyyyMMdd") + ".csv";
+            File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadDaily", csvFileName), csv.ToString(), Encoding.GetEncoding(932));
+            filenames.Add(csvFileName);
         }
 
         //累積データの観測所情報の更新

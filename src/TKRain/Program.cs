@@ -16,6 +16,7 @@ namespace TKRain
         private static readonly string[] _rainFiles = { "RainData.json", "Rainfall.xml", "Rainfall.json", "Rainfall.geojson" };
         private static readonly string[] _riverFiles = { "RiverData.json", "RiverLevel.xml", "RiverLevel.json", "RiverLevel.geojson" };
         private static readonly string[] _roadFiles = { "RoadData.json", "RoadWeather.xml", "RoadWeather.json", "RoadWeather.geojson" };
+        private static readonly string[] _roadSeries = {"1-1001.json", "3-1002.json", "4-1003.json", "5-1004.json", "7-1005.json", "8-1006.json" };
         private static readonly string[] _damFiles = { "DamData.json", "DamInfo.xml", "DamInfo.json"};
         private static readonly string[] _tideFiles = { "TideData.json"};
 
@@ -111,17 +112,17 @@ namespace TKRain
             {
                 if (Observation.IsUpdateRequired("RoadWeatherObservationTime.txt", out prevObservationTime))
                 {
-                    bool dailyDataUpLoad;
                     var roadWeather = new RoadWeather();
-                    int number = roadWeather.GetRoadWeatherData(prevObservationTime, weatherRainList, out dailyDataUpLoad);
+                    List<string> filenames = new List<string>();
+                    int number = roadWeather.GetRoadWeatherData(prevObservationTime, weatherRainList, filenames);
                     if (number > 0)
                     {
                         LoggerClass.LogInfo("道路気象処理件数: " + number + "件");
-
                         ObsTask.Add(Observation.AmazonS3ListUpload("Road", _roadFiles));
-                        if(dailyDataUpLoad)
-                            ObsTask.Add(Observation.AmazonS3DirctoryUpload("RoadDaily", 0));
-
+                        
+                        ObsTask.Add(Observation.AmazonS3ListUpload("Road", _roadSeries));
+                        if (filenames.Any())
+                            ObsTask.Add(Observation.AmazonS3ListUpload("RoadDaily", filenames.ToArray()));
                     }
                 }
             }
