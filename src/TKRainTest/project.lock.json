@@ -2293,7 +2293,7 @@
           "System.Threading": "4.0.11-rc2-24027"
         },
         "compile": {
-          "ref/netstandard1.3/_._": {}
+          "ref/netstandard1.3/System.Text.Encoding.CodePages.dll": {}
         },
         "runtimeTargets": {
           "runtimes/unix/lib/netstandard1.3/System.Text.Encoding.CodePages.dll": {
@@ -2766,6 +2766,7 @@
           "Newtonsoft.Json": "9.0.1-beta1",
           "Serilog.Extensions.Logging": "1.0.0-rc2-10099",
           "Serilog.Sinks.File": "2.0.0-rc-706",
+          "System.Text.Encoding.CodePages": "4.0.1-rc2-24027",
           "System.Xml.XmlSerializer": "4.0.11-rc2-24027"
         },
         "compile": {

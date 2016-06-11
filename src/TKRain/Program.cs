@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using TKRain.Models;
 
@@ -61,6 +62,12 @@ namespace TKRain
                         roadWeather.SetRoadInfo();
                         LoggerClass.LogInfo("/r 処理終了");
                         return;
+                    }
+
+                    //テスト
+                    if (s == "/t")
+                    {
+                        File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadDaily", "test.txt"), "Shift-JISテスト", Encoding.GetEncoding(932));
                     }
                 }
             }

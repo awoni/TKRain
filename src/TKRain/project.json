@@ -24,7 +24,8 @@
     "Serilog.Extensions.Logging": "1.0.0-rc2-10099",
     "Serilog.Sinks.File": "2.0.0-rc-706",
     "Newtonsoft.Json": "9.0.1-beta1",
-    "System.Xml.XmlSerializer": "4.0.11-rc2-24027"
+    "System.Xml.XmlSerializer": "4.0.11-rc2-24027",
+    "System.Text.Encoding.CodePages": "4.0.1-rc2-24027"
   },
 
   "frameworks": {
