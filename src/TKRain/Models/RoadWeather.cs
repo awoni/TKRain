@@ -48,6 +48,11 @@ namespace TKRain.Models
 
             if (observationDateTime <= prevObservationTime)
                 return 0;
+            bool isMakeDaily = observationDateTime.Day != prevObservationTime.Day && prevObservationTime != default(DateTime);
+            if(isMakeDaily)
+            {
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            }
 
             RoadDataList roadDataList = new RoadDataList {
                 dt = observationDateTime,
@@ -243,7 +248,7 @@ namespace TKRain.Models
                     File.WriteAllText(path, JsonConvert.SerializeObject(rs));
                     number++;
                     //日が変わったら日次ファイルを更新
-                    if (observationDateTime.Day != prevObservationTime.Day && prevObservationTime != default(DateTime))
+                    if (isMakeDaily)
                     {
                         MakeDailyData(rs, prevObservationTime, filenames);
                     }

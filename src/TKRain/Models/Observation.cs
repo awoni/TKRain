@@ -132,7 +132,12 @@ namespace TKRain.Models
                 using (var s3Client = new AmazonS3Client(credentials, RegionEndpoint.APNortheast1))
                 {
                     var utility = new TransferUtility(s3Client, new TransferUtilityConfig());
-                    //await utility.UploadAsync(Path.Combine(AppInit.DataDir, name), AppInit.BucketName + "/" + name);
+                    string dirName = Path.Combine(AppInit.DataDir, name);
+                    var dir = new DirectoryInfo(dirName);
+                    foreach (FileInfo file in dir.GetFiles())
+                    {
+                        await utility.UploadAsync(file.FullName, AppInit.BucketName + "/" + name);
+                    }
                 }
             }
             catch (Exception e1)
