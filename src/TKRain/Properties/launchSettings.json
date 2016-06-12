@@ -1,7 +1,8 @@
 {
   "profiles": {
     "TKRain": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "/t"
     }
   }
 }

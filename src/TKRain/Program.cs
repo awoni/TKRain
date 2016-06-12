@@ -67,7 +67,10 @@ namespace TKRain
                     //テスト
                     if (s == "/t")
                     {
-                        File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadDaily", "test.txt"), "Shift-JISテスト", Encoding.GetEncoding(932));
+                        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                        Encoding enc = Encoding.GetEncoding(932);
+                        File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadDaily", "test.txt"), "Shift-JISテスト", enc);
+                        File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadDaily", "test-utf.txt"), "Shift-JISテスト");
                         return;
                     }
                 }
