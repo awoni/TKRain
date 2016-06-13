@@ -14,21 +14,22 @@ using Newtonsoft.Json;
 namespace TKRain.Models
 {
     // 潮位情報
-    // http://www1.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_12.xml
+    // http://www.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_12.xml
     class TideLevel
     {
-        const string TideLevelUrl = "http://www1.road.pref.tokushima.jp/a6/rasterxml/Symbol_01_12.xml";
+        readonly string _tideLevelUrl;
         const int SeriesNumber = 3000;
 
         public TideLevel()
         {
+            _tideLevelUrl = AppInit.Host + "/a6/rasterxml/Symbol_01_12.xml";
         }
 
         public int GetTideLevelData(DateTime prevObservationTime)
         {
             int number = 1;
 
-            TideSList data = Observation.TgGetStream<TideSList>(TideLevelUrl, 0);
+            TideSList data = Observation.TgGetStream<TideSList>(_tideLevelUrl, 0);
             if (data == null)
                 return 0;
 
@@ -73,7 +74,7 @@ namespace TKRain.Models
                                 int offset = SeriesNumber - ts.ot.Length;
                                 for (int n = 0; n < offset; n++)
                                 {
-                                    tm.AddMinutes(10);
+                                    tm = tm.AddMinutes(10);
                                     ot2[n] = tm;
                                 }
                                 for (int n = 0; n < ts.ot.Length; n++)
@@ -153,7 +154,7 @@ namespace TKRain.Models
         public void SetTideInfo()
         {
 
-            TideSList data = Observation.TgGetStream<TideSList>(TideLevelUrl, 0);
+            TideSList data = Observation.TgGetStream<TideSList>(_tideLevelUrl, 0);
             if (data == null)
                 return;
 

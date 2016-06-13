@@ -19,7 +19,7 @@ using System.Xml.Serialization;
 using Amazon.Runtime;
 
 //徳島県　雨量、水位情報
-//最新の観測データ http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00001.xml
+//最新の観測データ http://www.road.pref.tokushima.jp/c6/xml92100/00000_00000_00001.xml
 //
 // 雨量：　00001
 // 水位：　00004
@@ -27,7 +27,7 @@ using Amazon.Runtime;
 // ダム諸量：　00007
 
 //所在地を取得するXML
-//http://www1.road.pref.tokushima.jp/c6/xml90000/00000_00000_00000.xml
+//http://www.road.pref.tokushima.jp/c6/xml90000/00000_00000_00000.xml
 
 namespace TKRain.Models
 {
@@ -176,19 +176,19 @@ namespace TKRain.Models
         }
 
 
-        public static bool IsUpdateRequired(string filename, out DateTime PrevObservationTime)
+        public static bool IsUpdateRequired(string filename, out DateTime prevObservationTime)
         {
             try
             {
-                PrevObservationTime = DateTime.Parse(File.ReadAllText(Path.Combine(AppInit.DataDir, filename)));
+                prevObservationTime = DateTime.Parse(File.ReadAllText(Path.Combine(AppInit.DataDir, filename)));
                 //10分ごとに更新
-                if ((DateTime.Now - PrevObservationTime).Ticks >= 6000000000L)
+                if ((DateTime.Now - prevObservationTime).Ticks >= 6000000000L)
                     return true;
                 return false;
             }
             catch
             {
-                PrevObservationTime = default(DateTime);
+                prevObservationTime = default(DateTime);
                 return true;
             }
         }
@@ -214,7 +214,7 @@ namespace TKRain.Models
     /// ここからは観測所の一データを取得
     public class SList
     {
-        /// <remarks/>
+        /// remarks
         [System.Xml.Serialization.XmlElementAttribute("Sym")]
         public List<SListSym> Sym { get; set; }
     }
@@ -222,19 +222,19 @@ namespace TKRain.Models
     /// <remarks/>
     public class SListSym
     {
-        /// <remarks/>
+        /// remarks
         //public string Cd { get; set; }
         /// 事務所コード、観測所コード
         public string Ocb { get; set; }
-        /// <remarks/>
+        /// remarks
         //public byte Itm { get; set; }
         /// 観測所名称
         public string Nm { get; set; }
-        /// <remarks/>
+        /// remarks
         //public string Data { get; set; }
         /// 座標（平面直角座標）
         public string Pt { get; set; }
-        /// <remarks/>
+        /// remarks
         //public byte Eki {get; set; }
     }
 

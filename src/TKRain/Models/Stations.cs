@@ -22,7 +22,7 @@ namespace TKRain.Models
 {
     class Stations
     {
-        const string StationUrl = "http://www1.road.pref.tokushima.jp/c6/xml90000/00000_00000_00000.xml";
+        readonly string _stationUrl;
 
         private class ManageOffice
         {
@@ -30,7 +30,7 @@ namespace TKRain.Models
             public int Office { get; set; }
         }
 
-        readonly static List<ManageOffice> ManageOfficeList = new List<ManageOffice> {
+        readonly List<ManageOffice> ManageOfficeList = new List<ManageOffice> {
                 new ManageOffice {Address = "徳島市", Office = 1},
                 new ManageOffice {Address = "鳴門市", Office = 2},
                 new ManageOffice {Address = "小松島市", Office = 1},
@@ -45,6 +45,11 @@ namespace TKRain.Models
                 new ManageOffice {Address = "板野郡上板町", Office = 3},
             };
 
+        public Stations()
+        {
+            _stationUrl = AppInit.Host + "/c6/xml90000/00000_00000_00000.xml";
+        }
+
         public void GetStationInformations()
         {
 
@@ -54,7 +59,7 @@ namespace TKRain.Models
             TideStationList tide = new TideStationList();
             RoadStationList road = new RoadStationList();
 
-            var sl = Observation.TgGetStream<StaionList>(StationUrl, 0);
+            var sl = Observation.TgGetStream<StaionList>(_stationUrl, 0);
             foreach (var om in sl.pom.pa.om)
             {
                 int ofc = om.ofc;
@@ -163,7 +168,7 @@ namespace TKRain.Models
             File.WriteAllText(Path.Combine(AppInit.DataDir, "Config", "RoadWeather.json"), JsonConvert.SerializeObject(road, Formatting.Indented));
         }
 
-        private static int GetManageOffice(int ofc, string address, out string alterAddress, string obn)
+        private int GetManageOffice(int ofc, string address, out string alterAddress, string obn)
         {
             if (address.StartsWith("徳島県"))
                 alterAddress = address.Substring(3);

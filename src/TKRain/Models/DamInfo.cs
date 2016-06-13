@@ -18,18 +18,19 @@ namespace TKRain.Models
 {
     class DamInfo
    {
-        const string DamInfoUrl = "http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00007.xml";
+        private readonly string _damInfoUrl;
         const int SeriesNumber = 300;
 
         public DamInfo()
         {
+            _damInfoUrl = AppInit.Host + "/c6/xml92100/00000_00000_00007.xml";
         }
 
         public int GetDamInfoData(DateTime prevObservationTime)
         {
             int number = 0;
 
-            DamDocd data = Observation.TgGetStream<DamDocd>(DamInfoUrl, 0);
+            DamDocd data = Observation.TgGetStream<DamDocd>(_damInfoUrl, 0);
             if (data == null)
                 return 0;
 
@@ -280,7 +281,7 @@ namespace TKRain.Models
         public void SetDamInfo()
         {
 
-            DamDocd data = Observation.TgGetStream<DamDocd>(DamInfoUrl, 0);
+            DamDocd data = Observation.TgGetStream<DamDocd>(_damInfoUrl, 0);
             if (data == null)
                 return;
 

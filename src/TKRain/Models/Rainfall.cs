@@ -19,7 +19,7 @@ namespace TKRain.Models
     //雨量
     class Rainfall
     {
-        const string RainfallUrl = "http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00001.xml";
+        readonly string _rainfallUrl;
         const int SeriesNumber = 300;
 
         private Dictionary<string, string> WeathrDic = new Dictionary<string, string> {
@@ -33,13 +33,14 @@ namespace TKRain.Models
 
         public Rainfall()
         {
+            _rainfallUrl = AppInit.Host + "/c6/xml92100/00000_00000_00001.xml";
         }
 
         public int GetRainfallData(DateTime prevObservationTime, List<WeatherRain> weatherRainList)
         {
             int number = 0;
 
-            RainDocd data = Observation.TgGetStream<RainDocd>(RainfallUrl, 0);
+            RainDocd data = Observation.TgGetStream<RainDocd>(_rainfallUrl, 0);
             if (data == null)
                 return 0;
 
@@ -265,7 +266,7 @@ namespace TKRain.Models
         public void SetRainInfo()
         {
 
-            RainDocd data = Observation.TgGetStream<RainDocd>(RainfallUrl, 0);
+            RainDocd data = Observation.TgGetStream<RainDocd>(_rainfallUrl, 0);
             if (data == null)
                 return;
 

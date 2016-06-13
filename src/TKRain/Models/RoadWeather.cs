@@ -26,18 +26,19 @@ namespace TKRain.Models
 {
     class RoadWeather
     {
-        const string RoadWeatherUrl = "http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00302.xml";
+        readonly string _roadWeatherUrl;
         const int SeriesNumber = 300;
 
         public RoadWeather()
         {
+            _roadWeatherUrl = AppInit.Host + "/c6/xml92100/00000_00000_00302.xml";
         }
 
         public int GetRoadWeatherData(DateTime prevObservationTime, List<WeatherRain> weatherRainList, List<string> filenames)
         {
             int number = 0;
 
-            RoadDocd data = Observation.TgGetStream<RoadDocd>(RoadWeatherUrl, 0);
+            RoadDocd data = Observation.TgGetStream<RoadDocd>(_roadWeatherUrl, 0);
             if (data == null)
                 return 0;
 
@@ -70,7 +71,6 @@ namespace TKRain.Models
             {
                 try
                 {
-                    /// ToDo 24:00 の例外処理が必要
                     DateTime doidt = observationDateTime;
                     if (observationTime != oi.odd.wd.d10030_10m.ot)
                     {
@@ -306,7 +306,7 @@ namespace TKRain.Models
         public void SetRoadInfo()
         {
 
-            RoadDocd data = Observation.TgGetStream<RoadDocd>(RoadWeatherUrl, 0);
+            RoadDocd data = Observation.TgGetStream<RoadDocd>(_roadWeatherUrl, 0);
             if (data == null)
                 return;
 

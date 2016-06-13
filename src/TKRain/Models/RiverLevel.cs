@@ -18,18 +18,19 @@ namespace TKRain.Models
 {
     class RiverLevel
     {
-        const string RiverLevelUrl = "http://www1.road.pref.tokushima.jp/c6/xml92100/00000_00000_00004.xml";
+        readonly string _riverLevelUrl;
         const int SeriesNumber = 300;
 
         public RiverLevel()
         {
+            _riverLevelUrl = AppInit.Host + "/c6/xml92100/00000_00000_00004.xml";
         }
 
         public int GetRiverLevelData(DateTime prevObservationTime)
         {
             int number = 0; 
 
-            RiverDocd data = Observation.TgGetStream<RiverDocd>(RiverLevelUrl, 0);
+            RiverDocd data = Observation.TgGetStream<RiverDocd>(_riverLevelUrl, 0);
             if (data == null)
                 return 0;
 
@@ -214,7 +215,7 @@ namespace TKRain.Models
         public void SetRiverInfo()
         {
 
-            RiverDocd data = Observation.TgGetStream<RiverDocd>(RiverLevelUrl, 0);
+            RiverDocd data = Observation.TgGetStream<RiverDocd>(_riverLevelUrl, 0);
             if (data == null)
                 return;
 
