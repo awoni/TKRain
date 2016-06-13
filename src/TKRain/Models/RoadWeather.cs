@@ -279,7 +279,7 @@ namespace TKRain.Models
             wd.total_rainfall = new double?[144];
             wd.observation_time = new DateTime[144];
             StringBuilder csv = new StringBuilder();
-            csv.AppendLine("時間, 気温, 風速, 風向, 10分雨量, 時間雨量, 累計雨量");
+            csv.Append("時間, 気温, 風速, 風向, 10分雨量, 時間雨量, 累計雨量\r\n");
             int offset = (int)((dt0 - rs.ot[0]).Ticks / 6000000000) + 1;
             for (int n = offset; n < offset + 144; n++)
             {
@@ -290,7 +290,7 @@ namespace TKRain.Models
                     wd.hourly_rainfall[n - offset] = rs.d10_1h_val[n];
                     wd.total_rainfall[n - offset] = rs.d70_10m_val[n];
                     wd.observation_time[n - offset] = rs.ot[n];
-                    csv.AppendLine($"{rs.ot[n].ToString("HH:mm")}, {rs.d10030_val[n]}, {rs.d10060_val[n]}, {rs.d10070_val[n]}, {rs.d10_10m_val[n]}, {rs.d10_1h_val[n]}, {rs.d70_10m_val[n]}");
+                    csv.Append($"{rs.ot[n].ToString("HH:mm")}, {rs.d10030_val[n]}, {rs.d10060_val[n]}, {rs.d10070_val[n]}, {rs.d10_10m_val[n]}, {rs.d10_1h_val[n]}, {rs.d70_10m_val[n]}\r\n");
             }
 
             string jsonFilename = rs.sc + "-" + dt0.ToString("yyyyMMdd") + ".json";
