@@ -24,7 +24,9 @@ function tideSummaryTable(data) {
     out += "<tr><th>場所</th><th>潮位</th><th>観測時間</th><th>リンク</th></tr>";
     var i;
     for (i = 0; i < data.hr.length; i++) {
-        out += '<tr><td>' + data.hr[i].obn + '</td><td>' + data.hr[i].level + '</td><td>' + data.hr[i].dt + '</td><td><a href="TideData.html?station=' + data.hr[i].sc + '">リンク</a></td></tr>';
+        out += '<tr><td>' + data.hr[i].obn + '</td><td>' + data.hr[i].level +
+            '</td><td>' + data.hr[i].dt +
+            '</td><td><a href="TideData.html?station=' + data.hr[i].sc + '">リンク</a></td></tr>';
     }
     out += "<table>";
     out += "<p>データ: " + tideUrl + "TideData.json" + "</p>";

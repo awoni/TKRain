@@ -26,7 +26,9 @@ function riverSummaryTable(data) {
     out += "<tr><th>場所</th><th>水位</th><th>水位変化</th><th>観測時間<th>リンク</th></tr>";
     var i;
     for (i = 0; i < data.hr.length; i++) {
-        out += '<tr><td>' + data.hr[i].obn + '</td><td>' + data.hr[i].d10_val + '</td><td>' + data.hr[i].d10_chg + '</td><td>' + data.hr[i].dt + '</td><td><a href="RiverData.html?station=' + data.hr[i].sc + '">リンク</a></td></tr>';
+        out += '<tr><td>' + data.hr[i].obn + '</td><td>' + data.hr[i].d10_val + '</td><td>' + data.hr[i].d10_chg +
+            '</td><td>' + data.hr[i].dt +
+            '</td><td><a href="RiverData.html?station=' + data.hr[i].sc + '">リンク</a></td></tr>';
     }
     out += "<table>";
     out += "<p>データ: " + riverUrl + "RiverData.json" + "</p>";
@@ -62,7 +64,8 @@ function riverDetailTable(data, url) {
     out += "<tr><th>観測時間</th><th>水位</th><th>ステータス</th></tr>";
     var i;
     for (i = 0; i < data.ot.length; i++) {
-        out += '<tr><td>' + data.ot[i] + '</td><td>' + data.d10_val[i] + '</td><td>' + data.d10_si[i] + '</td><tr>';
+        out += '<tr><td>' + data.ot[i] + '</td><td>' + data.d10_val[i] + '</td><td>' + data.d10_si[i] +
+            '</td><tr>';
     }
     out += "<table>";
     out += "<p>データ: " + url + "</p>";

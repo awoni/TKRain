@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using TKRain.Models;
@@ -23,9 +24,15 @@ namespace TKRain
 
         public static void Main(string[] args)
         {
+            string os = "x";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                os = "linux";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                os = "Windows";
+
             var builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
-                .AddJsonFile($"appsettings.{PlatformServices.Default.Runtime.OperatingSystem}.json", optional: true)
+                .AddJsonFile($"appsettings.{os}.json", optional: true)
                 .AddEnvironmentVariables();
 
             Configuration = builder.Build();

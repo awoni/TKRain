@@ -11,28 +11,25 @@
   },
 
   "dependencies": {
-    "AWSSDK.S3": "3.2.4.1-beta",
-    "Microsoft.NETCore.App": {
-      "type": "platform",
-      "version": "1.0.0-rc2-3002702"
-    },
-    "Microsoft.Extensions.Configuration": "1.0.0-rc2-final",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc2-final",
-    "Microsoft.Extensions.Configuration.Abstractions": "1.0.0-rc2-final",
-    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc2-final",
-    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-rc2-final",
-    "Serilog.Extensions.Logging": "1.0.0-rc2-10099",
-    "Serilog.Sinks.File": "2.0.0-rc-706",
-    "Newtonsoft.Json": "9.0.1-beta1",
-    "System.Xml.XmlSerializer": "4.0.11-rc2-24027",
-    "System.Diagnostics.Tools": "4.0.1-rc2-24027"
+    "AWSSDK.S3": "3.2.5-beta",
+    "Microsoft.Extensions.Configuration": "1.0.0",
+    "Microsoft.Extensions.Configuration.Abstractions": "1.0.0",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0",
+    "Microsoft.NETCore.App": "1.0.0",
+    "Newtonsoft.Json": "9.0.1",
+    "Serilog.Extensions.Logging": "1.0.0",
+    "Serilog.Sinks.File": "2.0.0",
+    "System.Diagnostics.Tools": "4.0.1",
+    "System.Text.Encoding.CodePages": "4.0.1",
+    "System.Xml.XmlSerializer": "4.0.11"
   },
 
   "frameworks": {
     "netcoreapp1.0": {
       "imports": "dnxcore50",
       "dependencies": {
-        "System.Text.Encoding.CodePages": "4.0.1-rc2-24027"
       }
     }
   },

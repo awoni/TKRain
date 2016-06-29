@@ -28,7 +28,11 @@ function damSummaryTable(data, url) {
     out += "<tr><th>ダム名</th><th>貯水位</th><th>貯水量</th><th>貯水率</th><th>流入量</th><th>放流量</th><th>流域平均10分間雨量</th><th>流域平均時間雨量</th><th>流域平均累計雨量</th><th>リンク</th></tr>";
     var i;
     for (i = 0; i < data.hr.length; i++) {
-        out += '<tr><td>' + data.hr[i].obn + '</td><td>' + data.hr[i].d10_val + '</td><td>' + data.hr[i].d20_val + '</td><td>' + data.hr[i].d40_val + '</td><td>' + data.hr[i].d50_val + '</td><td>' + data.hr[i].d70_val + '</td><td>' + data.hr[i].d10010_10m_val + '</td><td>' + data.hr[i].d10010_1h_val + '</td><td>' + data.hr[i].d10070_val + '</td><td><a href="DamData.html?station=' + data.hr[i].sc + '">リンク</a></td></tr>';
+        out += '<tr><td>' + data.hr[i].obn + '</td><td>' + data.hr[i].d10_val + '</td><td>' + data.hr[i].d20_val +
+            '</td><td>' + data.hr[i].d40_val + '</td><td>' + data.hr[i].d50_val +
+            '</td><td>' + data.hr[i].d70_val + '</td><td>' + data.hr[i].d10010_10m_val +
+            '</td><td>' + data.hr[i].d10010_1h_val + '</td><td>' + data.hr[i].d10070_val +
+            '</td><td><a href="DamData.html?station=' + data.hr[i].sc + '">リンク</a></td></tr>';
     }
     out += "<table>";
     out += "<p>データ: " + url + "</p>";
@@ -53,7 +57,10 @@ function damDetailTable(data, url) {
     out += "<tr><th>ダム名</th><th>貯水位</th><th>貯水量</th><th>貯水率</th><th>流入量</th><th>放流量</th><th>流域平均10分間雨量</th><th>流域平均時間雨量</th><th>流域平均累計雨量</th></tr>";
     var i;
     for (i = 0; i < data.ot.length; i++) {
-        out += '<tr><td>' + data.ot[i] + '</td><td>' + data.d10_val[i] + '</td><td>' + data.d20_val[i] + '</td><td>' + data.d40_val[i] + '</td><td>' + data.d50_val[i] + '</td><td>' + data.d70_val[i] + '</td><td>' + data.d10010_10m_val[i] + '</td><td>' + data.d10010_1h_val[i] + '</td><td>' + data.d10070_val[i] + '</td></tr>';
+        out += '<tr><td>' + data.ot[i] + '</td><td>' + data.d10_val[i] + '</td><td>' + data.d20_val[i] +
+            '</td><td>' + data.d40_val[i] + '</td><td>' + data.d50_val[i] +
+            '</td><td>' + data.d70_val[i] + '</td><td>' + data.d10010_10m_val[i] +
+            '</td><td>' + data.d10010_1h_val[i] + '</td><td>' + data.d10070_val[i] + '</td></tr>';
     }
     out += "<table>";
     out += "<p>データ: " + url + "</p>";
