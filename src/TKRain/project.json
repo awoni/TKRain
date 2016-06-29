@@ -11,13 +11,16 @@
   },
 
   "dependencies": {
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0"
+    },
     "AWSSDK.S3": "3.2.5-beta",
     "Microsoft.Extensions.Configuration": "1.0.0",
     "Microsoft.Extensions.Configuration.Abstractions": "1.0.0",
     "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0",
     "Microsoft.Extensions.Configuration.Json": "1.0.0",
     "Microsoft.Extensions.PlatformAbstractions": "1.0.0",
-    "Microsoft.NETCore.App": "1.0.0",
     "Newtonsoft.Json": "9.0.1",
     "Serilog.Extensions.Logging": "1.0.0",
     "Serilog.Sinks.File": "2.0.0",
