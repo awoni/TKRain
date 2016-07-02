@@ -13,6 +13,7 @@
 
   "dependencies": {
     "Microsoft.NETCore.App": {
+      "type": "platform",
       "version": "1.0.0"
     },
     "AWSSDK.S3": "3.2.5-beta",
@@ -41,10 +42,5 @@
       "appsettings.json",
       "appsettings.*.json"
     ]
-  },
-  "runtimes": {
-    "win10-x64": {},
-    "ubuntu.14.04-x64": {},
-    "centos.7-x64": {}
   }
 }
