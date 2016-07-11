@@ -82,13 +82,18 @@ namespace TKRain
                     }
                 }
             }
-            LoggerClass.LogInfo("処理開始");
 
-            List<Task> ObsTask = new List<Task>();
-            DateTime prevObservationTime;
+            LoggerClass.LogInfo("処理開始");
+            ExecuteProgram().Wait();
+            LoggerClass.LogInfo("処理終了");
+        }
+
+        private static async Task ExecuteProgram()
+        {
             List<WeatherRain> weatherRainList = new List<WeatherRain>();
             try
             {
+                DateTime prevObservationTime;
                 if (Observation.IsUpdateRequired("RainfallObservationTime.txt", out prevObservationTime))
                 {
                     var rainfall = new Rainfall();
@@ -97,7 +102,7 @@ namespace TKRain
                     {
                         LoggerClass.LogInfo("雨量処理件数: " + number + "件");
 
-                        ObsTask.Add(Observation.AmazonS3ListUpload("Rain", _rainFiles));
+                        await Observation.AmazonS3ListUpload("Rain", _rainFiles);
 
                     }
                 }
@@ -109,6 +114,7 @@ namespace TKRain
 
             try
             {
+                DateTime prevObservationTime;
                 if (Observation.IsUpdateRequired("RiverLevelObservationTime.txt", out prevObservationTime))
                 {
                     var riverLevel = new RiverLevel();
@@ -117,7 +123,7 @@ namespace TKRain
                     {
                         LoggerClass.LogInfo("水位処理件数: " + number + "件");
 
-                        ObsTask.Add(Observation.AmazonS3ListUpload("River", _riverFiles));
+                        await Observation.AmazonS3ListUpload("River", _riverFiles);
                     }
                 }
             }
@@ -128,6 +134,7 @@ namespace TKRain
 
             try
             {
+                DateTime prevObservationTime;
                 if (Observation.IsUpdateRequired("RoadWeatherObservationTime.txt", out prevObservationTime))
                 {
                     var roadWeather = new RoadWeather();
@@ -136,11 +143,11 @@ namespace TKRain
                     if (number > 0)
                     {
                         LoggerClass.LogInfo("道路気象処理件数: " + number + "件");
-                        ObsTask.Add(Observation.AmazonS3ListUpload("Road", _roadFiles));
-                        
-                        ObsTask.Add(Observation.AmazonS3ListUpload("Road", _roadSeries));
+                        await Observation.AmazonS3ListUpload("Road", _roadFiles);
+
+                        await Observation.AmazonS3ListUpload("Road", _roadSeries);
                         if (filenames.Any())
-                            ObsTask.Add(Observation.AmazonS3ListUpload("RoadDaily", filenames.ToArray()));
+                            await Observation.AmazonS3ListUpload("RoadDaily", filenames.ToArray());
                     }
                 }
             }
@@ -152,6 +159,7 @@ namespace TKRain
             //ダム情報
             try
             {
+                DateTime prevObservationTime;
                 if (Observation.IsUpdateRequired("DamObservationTime.txt", out prevObservationTime))
                 {
                     var damInfo = new DamInfo();
@@ -160,7 +168,7 @@ namespace TKRain
                     {
                         LoggerClass.LogInfo("ダム情報処理件数: " + number + "件");
 
-                        ObsTask.Add(Observation.AmazonS3ListUpload("Dam", _damFiles));
+                        await Observation.AmazonS3ListUpload("Dam", _damFiles);
 
                     }
                 }
@@ -173,16 +181,15 @@ namespace TKRain
             //潮位
             try
             {
+                DateTime prevObservationTime;
                 if (Observation.IsUpdateRequired("TideLevelObservationTime.txt", out prevObservationTime))
                 {
                     var tideLevel = new TideLevel();
                     int number = tideLevel.GetTideLevelData(prevObservationTime);
                     if (number > 0)
                     {
+                        await Observation.AmazonS3ListUpload("Tide", _tideFiles);
                         LoggerClass.LogInfo("潮位処理件数: " + number + "件");
-
-                        ObsTask.Add(Observation.AmazonS3ListUpload("Tide", _tideFiles));
-
                     }
                 }
             }
@@ -191,8 +198,6 @@ namespace TKRain
                 LoggerClass.LogInfo("潮位ルーチンエラー: " + e1.Message);
             }
 
-            Task.WaitAll(ObsTask.ToArray());
-            LoggerClass.LogInfo("処理終了");
         }
     }
 }
