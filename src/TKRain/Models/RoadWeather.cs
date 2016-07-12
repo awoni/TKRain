@@ -192,12 +192,8 @@ namespace TKRain.Models
                     }
                     else
                     {
-                        rs.d10_10m_val[sn] = null;
-                        rs.d10_10m_si[sn] = -1;
-                        rs.d10_1h_val[sn] = null;
-                        rs.d10_1h_si[sn] = -1;
-                        rs.d70_10m_val[sn] = null;
-                        rs.d70_10m_si[sn] = -1;
+                        //雨量データの作成が遅れている場合は待つ
+                        return 0;
                     }
 
                     roadDataList.hr.Add(new RoadData

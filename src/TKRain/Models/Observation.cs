@@ -181,7 +181,7 @@ namespace TKRain.Models
             try
             {
                 prevObservationTime = DateTime.Parse(File.ReadAllText(Path.Combine(AppInit.DataDir, filename)));
-                //10分ごとに更新
+                //実際に公開されるのは10分遅れ
                 if ((DateTime.Now - prevObservationTime).Ticks >= 6000000000L)
                     return true;
                 return false;
