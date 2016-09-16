@@ -3,10 +3,10 @@
   "testRunner": "xunit",
   "dependencies": {
     "Microsoft.NETCore.App": {
-      "version": "1.0.0",
+      "version": "1.0.1",
       "type": "platform"
     },
-    "TKRain": "1.0.0-*",
+    "TKRain": "1.0.1",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
     "xunit": "2.2.0-beta2-build3300"
   },
