@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyTitle>TKRain</AssemblyTitle>
+    <VersionPrefix>1.0.2</VersionPrefix>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <AssemblyName>TKRain</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>TKRain</PackageId>
+    <RuntimeFrameworkVersion>1.1.0</RuntimeFrameworkVersion>
+    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json;appsettings.*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.3.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="1.3.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="3.1.1" />
+    <PackageReference Include="System.Diagnostics.Tools" Version="4.3.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
