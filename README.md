@@ -3,4 +3,16 @@
 
 また、データーを累積して時系列データも作成できるようにしています。
 
+S3 にデータをアップロードしたい場合の appsettings.json の例
+
+```appsettings.json
+{
+  "Host": "http://www1.road.pref.tokushima.jp",
+  "DataDir": "C:\\Data\\TKRain",
+  "AWSAccessKey": "xxxxx",
+  "AWSSecretKey": "xxxxx",
+  "BucketName": "tkrain"
+}
+```
+
 
