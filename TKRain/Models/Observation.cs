@@ -94,6 +94,8 @@ namespace TKRain.Models
         //AmazonのS3へのアップロード
         public async Task AmazonS3Upload(string path, int ntry = 0)
         {
+            if (AppInit.AWSAccessKey == null)
+                return;
             AWSCredentials credentials = new Amazon.Runtime.BasicAWSCredentials(AppInit.AWSAccessKey, AppInit.AWSSecretKey);
 
             try
@@ -125,6 +127,8 @@ namespace TKRain.Models
 
         public static async Task AmazonS3DirctoryUpload(string name, int ntry = 0)
         {
+            if (AppInit.AWSAccessKey == null)
+                return;
             AWSCredentials credentials = new Amazon.Runtime.BasicAWSCredentials(AppInit.AWSAccessKey, AppInit.AWSSecretKey);
 
             try
@@ -152,6 +156,8 @@ namespace TKRain.Models
 
         public static async Task AmazonS3ListUpload(string name, string[] filenames, int ntry = 0)
         {
+            if (AppInit.AWSAccessKey == null)
+                return;
             AWSCredentials credentials = new Amazon.Runtime.BasicAWSCredentials(AppInit.AWSAccessKey, AppInit.AWSSecretKey);
 
             try
