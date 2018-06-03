@@ -2,9 +2,10 @@
 // Use of this source code is governed by the MIT License,
 // as found in the LICENSE.txt file.
 
+using System;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.PlatformAbstractions;
 using System.IO;
+using Amazon.Runtime;
 
 namespace TKRain.Models
 {
@@ -15,17 +16,18 @@ namespace TKRain.Models
         public static string AWSSecretKey { get; private set; }
         public static string BucketName { get; private set; }
         public static string DataDir { get; private set; }
+        public static string App_Data { get; private set; }
 
         public static void SetupIni(IConfigurationRoot configuration)
         {
-            ApplicationEnvironment env = PlatformServices.Default.Application;
-            LoggerClass.Ini(env.ApplicationBasePath);
+            LoggerClass.Ini(AppContext.BaseDirectory);
 
             Host = configuration["Host"];
             AWSAccessKey = configuration["AWSAccessKey"];
             AWSSecretKey = configuration["AWSSecretKey"];
             BucketName = configuration["BucketName"];
             DataDir = configuration["DataDir"];
+            App_Data = Path.Combine(AppContext.BaseDirectory, "App_Data");
         }
 
         public static void DirectoryIni()

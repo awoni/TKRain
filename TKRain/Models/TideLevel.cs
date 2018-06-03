@@ -147,7 +147,7 @@ namespace TKRain.Models
             }
             File.WriteAllText(Path.Combine(AppInit.DataDir, "Tide", "TideData.json"), JsonConvert.SerializeObject(tideDataList));
 
-            File.WriteAllText(Path.Combine(AppInit.DataDir, "TideLevelObservationTime.txt"), observationDateTime.ToString());
+            File.WriteAllText(Path.Combine(AppInit.App_Data, "TideLevelObservationTime.txt"), observationDateTime.ToString());
             return number;
         }
 

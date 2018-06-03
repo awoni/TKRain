@@ -93,8 +93,7 @@ namespace TKRain
             List<WeatherRain> weatherRainList = new List<WeatherRain>();
             try
             {
-                DateTime prevObservationTime;
-                if (Observation.IsUpdateRequired("RainfallObservationTime.txt", out prevObservationTime))
+                if (Observation.IsUpdateRequired("RainfallObservationTime.txt", out DateTime prevObservationTime))
                 {
                     var rainfall = new Rainfall();
                     int number = rainfall.GetRainfallData(prevObservationTime, weatherRainList);
@@ -114,8 +113,7 @@ namespace TKRain
 
             try
             {
-                DateTime prevObservationTime;
-                if (Observation.IsUpdateRequired("RiverLevelObservationTime.txt", out prevObservationTime))
+                if (Observation.IsUpdateRequired("RiverLevelObservationTime.txt", out DateTime prevObservationTime))
                 {
                     var riverLevel = new RiverLevel();
                     int number = riverLevel.GetRiverLevelData(prevObservationTime);
@@ -134,8 +132,7 @@ namespace TKRain
 
             try
             {
-                DateTime prevObservationTime;
-                if (Observation.IsUpdateRequired("RoadWeatherObservationTime.txt", out prevObservationTime))
+                if (Observation.IsUpdateRequired("RoadWeatherObservationTime.txt", out DateTime prevObservationTime))
                 {
                     var roadWeather = new RoadWeather();
                     List<string> filenames = new List<string>();
@@ -159,8 +156,7 @@ namespace TKRain
             //ダム情報
             try
             {
-                DateTime prevObservationTime;
-                if (Observation.IsUpdateRequired("DamObservationTime.txt", out prevObservationTime))
+                if (Observation.IsUpdateRequired("DamObservationTime.txt", out DateTime prevObservationTime))
                 {
                     var damInfo = new DamInfo();
                     int number = damInfo.GetDamInfoData(prevObservationTime);
@@ -181,8 +177,7 @@ namespace TKRain
             //潮位
             try
             {
-                DateTime prevObservationTime;
-                if (Observation.IsUpdateRequired("TideLevelObservationTime.txt", out prevObservationTime))
+                if (Observation.IsUpdateRequired("TideLevelObservationTime.txt", out DateTime prevObservationTime))
                 {
                     var tideLevel = new TideLevel();
                     int number = tideLevel.GetTideLevelData(prevObservationTime);

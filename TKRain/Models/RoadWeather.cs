@@ -258,7 +258,7 @@ namespace TKRain.Models
             Observation.SaveToXml(Path.Combine(AppInit.DataDir, "Road", "RoadWeather.xml"), data, 0);
             File.WriteAllText(Path.Combine(AppInit.DataDir, "Road", "RoadWeather.json"), JsonConvert.SerializeObject(data));
             File.WriteAllText(Path.Combine(AppInit.DataDir, "Road", "RoadWeather.geojson"), JsonConvert.SerializeObject(geojson));
-            File.WriteAllText(Path.Combine(AppInit.DataDir, "RoadWeatherObservationTime.txt"), observationDateTime.ToString());
+            File.WriteAllText(Path.Combine(AppInit.App_Data, "RoadWeatherObservationTime.txt"), observationDateTime.ToString());
 
             return number;
         }

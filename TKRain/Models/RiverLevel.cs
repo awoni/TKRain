@@ -207,7 +207,7 @@ namespace TKRain.Models
             File.WriteAllText(Path.Combine(AppInit.DataDir, "River", "RiverLevel.json"), JsonConvert.SerializeObject(data));
             File.WriteAllText(Path.Combine(AppInit.DataDir, "River", "RiverLevel.geojson"), JsonConvert.SerializeObject(geojson));
 
-            File.WriteAllText(Path.Combine(AppInit.DataDir, "RiverLevelObservationTime.txt"), observationDateTime.ToString());
+            File.WriteAllText(Path.Combine(AppInit.App_Data, "RiverLevelObservationTime.txt"), observationDateTime.ToString());
             return number;
         }
 

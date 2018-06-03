@@ -200,6 +200,7 @@ GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
 
+package-lock.json
 logs/
 appsettings.*.json
 .idea/

@@ -258,7 +258,7 @@ namespace TKRain.Models
             File.WriteAllText(Path.Combine(AppInit.DataDir, "Rain", "Rainfall.json"), JsonConvert.SerializeObject(data));
             File.WriteAllText(Path.Combine(AppInit.DataDir, "Rain", "Rainfall.geojson"), JsonConvert.SerializeObject(geojson));
 
-            File.WriteAllText(Path.Combine(AppInit.DataDir, "RainfallObservationTime.txt"), observationDateTime.ToString());
+            File.WriteAllText(Path.Combine(AppInit.App_Data, "RainfallObservationTime.txt"), observationDateTime.ToString());
             return number;
         }
 
